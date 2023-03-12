@@ -13,6 +13,7 @@
 
 
 void ConnectTejo(char *string,int count);
+int Init_Server();
 
 
 int main(int argc, char **argv){
@@ -22,25 +23,8 @@ int main(int argc, char **argv){
     char string[128];
     socklen_t addrlen;
     struct sockaddr_in addr;
-    
-    struct addrinfo hints, *res;
-    ssize_t n;
-    int errcode;
 
-    fd = socket(AF_INET,SOCK_STREAM,0);
-    if(fd == -1) exit(1);
-
-    memset(&hints,0,sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-
-    errcode = getaddrinfo("127.0.0.1","8080",&hints,&res);
-
-    if((errcode) != 0) exit(1);
-    n = bind(fd,res->ai_addr,res->ai_addrlen);
-    if(n == -1) exit(1);
-    if(listen(fd,5) == -1) exit(1);/*Nao tenho a certeza do 2 argumento*/
-    
+    fd = Init_Server();
     while(1){
         FD_SET(0,&rfds);
         FD_SET(3,&rfds);
@@ -50,7 +34,6 @@ int main(int argc, char **argv){
         if(FD_ISSET(0,&rfds)){
             fgets(string,128,stdin);
             if(strcmp(string,"exit\n") == 0){
-                freeaddrinfo(res);
                 close(fd);
                 exit(0);
             } 
@@ -76,8 +59,40 @@ void ConnectTejo(char *string,int count){
     socklen_t addrlen;
     struct addrinfo hints,*res;
     struct sockaddr_in addr;
-    char buffer[128];
+    char buffer[128], key[10];
 
+
+    sscanf(string,"%s",key);
+    if (strcmp(key, "join") == 0)
+    {
+    }
+    else if (strcmp(key, "djoin") == 0)
+    {
+    }
+    else if ((strcmp(key, "create") == 0))
+    {
+    }
+    else if ((strcmp(key, "delete") == 0))
+    {
+    }
+    else if (strcmp(key, "get") == 0)
+    {
+    }
+    else if (strcmp(key, "show") == 0)
+    {
+        if (strcmp(key2, "topology") == 0)
+        {
+        }
+        else if (strcmp(key2, "names"))
+        {
+        }
+        else if (strcmp(key2, "routing"))
+        {
+        }
+    }
+    else if (strcmp(key, "leave") == 0)
+    {
+    }
 
     fd = socket(AF_INET,SOCK_DGRAM,0); //UDP socket
     if(fd == -1) /*error*/ exit(1);
@@ -97,4 +112,32 @@ void ConnectTejo(char *string,int count){
         write(1,"echo: ",6); write(1,buffer,n);
     freeaddrinfo(res);
     close(fd);
+}
+
+/*void User(char *string,int count){
+
+
+}*/
+
+int Init_Server(){
+    struct addrinfo hints, *res;
+    ssize_t n;
+    int errcode,fd;
+
+    fd = socket(AF_INET,SOCK_STREAM,0);
+    if(fd == -1) exit(1);
+
+    memset(&hints,0,sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    errcode = getaddrinfo("127.0.0.1","8080",&hints,&res);
+
+    if((errcode) != 0) exit(1);
+    n = bind(fd,res->ai_addr,res->ai_addrlen);
+    if(n == -1) exit(1);
+    if(listen(fd,5) == -1) exit(1);/*Nao tenho a certeza do 2 argumento*/
+
+    freeaddrinfo(res);
+    return fd;
 }
