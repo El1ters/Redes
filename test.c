@@ -36,7 +36,7 @@ if(n==-1){
     exit(1);
 } 
 
-n=write(fd,"Hello!\n", 7);
+n = write(fd,"Hello!\n", 7);
 if(n==-1) exit(1);
 
 n=read(fd, buffer, 128);

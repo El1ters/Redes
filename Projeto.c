@@ -14,7 +14,7 @@
 
 void ConnectTejo(char *string,int count);
 int Init_Server();
-
+void join(char** list);
 
 int main(int argc, char **argv){
     int fd, newfd;
@@ -44,7 +44,6 @@ int main(int argc, char **argv){
             addrlen = sizeof(addr);
             if((newfd = accept(fd,(struct sockaddr*)&addr,(socklen_t*)&addrlen)) == -1)exit(1);
             FD_SET(newfd,&rfds);
-            printf("bitch\n");
         }
         
         FD_ZERO(&rfds);
@@ -54,18 +53,24 @@ int main(int argc, char **argv){
 }
 
 void ConnectTejo(char *string,int count){
-    int fd,errcode;
+    int fd, errcode, i = 0;
     ssize_t n;
     socklen_t addrlen;
     struct addrinfo hints,*res;
     struct sockaddr_in addr;
-    char buffer[128], key[10];
-
+    char buffer[128], key[10],list[6][50] = {}, *token;
 
     sscanf(string,"%s",key);
-    if (strcmp(key, "join") == 0)
-    {
+    token = strtok(string," ");
+    while(token != NULL){
+        strcpy(list[i],token);
+        token = strtok(NULL," ");
+        i++;
     }
+    
+    if (strcmp(key, "join") == 0){
+        join();
+    }/*
     else if (strcmp(key, "djoin") == 0)
     {
     }
@@ -92,26 +97,26 @@ void ConnectTejo(char *string,int count){
     }
     else if (strcmp(key, "leave") == 0)
     {
-    }
+    }*/
 
-    fd = socket(AF_INET,SOCK_DGRAM,0); //UDP socket
-    if(fd == -1) /*error*/ exit(1);
+    /*fd = socket(AF_INET,SOCK_DGRAM,0); //UDP socket
+    if(fd == -1)  exit(1);
     memset(&hints,0,sizeof hints);
     hints.ai_family=AF_INET; // IPv4
     hints.ai_socktype=SOCK_DGRAM; // UDP socket
     hints.ai_flags=AI_PASSIVE;
 
     errcode = getaddrinfo("tejo.tecnico.ulisboa.pt","59000",&hints,&res);
-    if(errcode != 0) /*error*/ exit(1);
+    if(errcode != 0)  exit(1);
 
         n = sendto(fd,string,count,0,res->ai_addr,res->ai_addrlen);
-        if(n == -1) /*error*/ exit(1);
+        if(n == -1)  exit(1);
         addrlen = sizeof(addr);
         n = recvfrom(fd,buffer,128,0,(struct sockaddr*)&addr,&addrlen);
-        if(n == -1) /*error*/ exit(1);
+        if(n == -1)  exit(1);
         write(1,"echo: ",6); write(1,buffer,n);
     freeaddrinfo(res);
-    close(fd);
+    close(fd);*/
 }
 
 /*void User(char *string,int count){
@@ -140,4 +145,42 @@ int Init_Server(){
 
     freeaddrinfo(res);
     return fd;
+}
+
+void join(char **list){
+    int fd2, errcode2;
+    char str1[]="NODES 079";
+    char str2[]="REG 079 01 127.0.0.1 8080";
+    char buffer1[128], buffer2[128];
+    socklen_t addrlen;
+    struct addrinfo hints,*res;
+    struct sockaddr_in addr;
+    ssize_t m, g ;
+
+    fd2 = socket(AF_INET,SOCK_DGRAM,0); //UDP socket
+    if(fd2 == -1) /*error*/ exit(1);
+    memset(&hints,0,sizeof hints);
+    hints.ai_family=AF_INET; // IPv4
+    hints.ai_socktype=SOCK_DGRAM; // UDP socket
+    hints.ai_flags=AI_PASSIVE;
+
+    errcode2 = getaddrinfo("tejo.tecnico.ulisboa.pt","59000",&hints,&res);
+    if(errcode2 != 0) /*error*/ exit(1);
+
+    m = sendto(fd2,str1,50,0,res->ai_addr,res->ai_addrlen);
+    if(m == -1) /*error*/ exit(1);
+    addrlen = sizeof(addr);
+    m = recvfrom(fd2,buffer1,128,0,(struct sockaddr*)&addr,&addrlen);
+    if(m == -1) /*error*/ exit(1);
+    write(1,"echo: ",6); write(1,buffer1,m);
+    if(strcmp(buffer1, "NODESLIST 079\n") == 0){
+        g = sendto(fd2,str2,50,0,res->ai_addr,res->ai_addrlen);
+        if(g == -1) /*error*/ exit(1);
+        addrlen = sizeof(addr);
+        g = recvfrom(fd2,buffer2,128,0,(struct sockaddr*)&addr,&addrlen);
+        if(g == -1) /*error*/ exit(1);
+        write(1,"echo: ",6); write(1,buffer2,g);
+        freeaddrinfo(res);
+        close(fd2);
+    }
 }
