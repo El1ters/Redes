@@ -1,8 +1,9 @@
 #include "Main.h"
 #include "Interface.h"
 
-void ConnectTejo(char *string,int count,char *IP,char *TCP,int fd, char *id,char *net){
+void ConnectTejo(char *string, Server *info){
     int i = 0;
+    static int primeiro = 0;
     char list[6][50] = {}, *token;
     token = strtok(string," ");
     while(token != NULL){
@@ -12,14 +13,13 @@ void ConnectTejo(char *string,int count,char *IP,char *TCP,int fd, char *id,char
         i++;
     }
     token = strtok(list[--i],"\n");
-    strcpy(list[i],token);
 
-    if (strcmp(list[0], "join") == 0){
-        strcpy(id,list[2]);
-        strcpy(net,list[1]);
-        join(list,IP,TCP);
+    if (strcmp(list[0], "join") == 0 && strlen(list[1]) == 3 && strlen(list[2]) == 2 && strlen(list[3]) == 0){
+        strcpy(info->id,list[2]);
+        strcpy(info->net,list[1]);
+        join(list,*info,&primeiro);
     }/*
-    else if (strcmp(key, "djoin") == 0)
+    else if (strcmp(key, "djoin") == 0 && primeiro != 0)
     {
     }
     else if ((strcmp(key, "create") == 0))
@@ -43,14 +43,13 @@ void ConnectTejo(char *string,int count,char *IP,char *TCP,int fd, char *id,char
         {
         }
     }*/
-    else if (strcmp(list[0], "leave") == 0){
-        leave(fd,id,net);
+    else if (strcmp(list[0], "leave") == 0 && strlen(list[1]) == 0){
+        leave(*info,&primeiro);
     }
 }
 
 
-void join(char list[6][50],char *IP, char* TCP){
-    int fd2, errcode2;
+void join(char list[6][50],Server info, int *i){
     char str1[10]="NODES 079";
     char str2[128]="REG ";
     char *nodeslist;
@@ -59,24 +58,27 @@ void join(char list[6][50],char *IP, char* TCP){
     strcat(str2," ");
     strcat(str2,list[2]);
     strcat(str2," ");
-    strcat(str2,IP);
+    strcat(str2,info.ip);
     strcat(str2," ");
-    strcat(str2,TCP);
+    strcat(str2,info.tcp);
 
     nodeslist = Give_List(str1,strlen(str1));
     if(strcmp(nodeslist, "NODESLIST 079\n") == 0){
         SendMessage(str2,strlen(str2));
+        *i = 1;
     }/*else{
         Conectar a um nó
     }*/
     free(nodeslist);
 }
 
-void leave(int fd,char *id,char *net){
+void leave(Server info,int *i){
     char str[128] = "UNREG ";
-    strcat(str,net);
+    strcat(str,info.net); 
     strcat(str," ");
-    strcat(str,id);
-    SendMessage(str,strlen(str));
-    close(fd);
+    strcat(str,info.id);
+    if(*i == 1){
+        SendMessage(str,strlen(str));
+        (*i)++;
+    }
 }

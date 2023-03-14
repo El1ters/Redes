@@ -3,11 +3,9 @@
 
 #include "Main.h"
 
-void ConnectTejo(char *string,int count,char *IP,char *TCP,int fd, char *id,char *net);
-void join(char list[6][50],char *ID, char* TCP);
-void leave(int fd,char *id,char *net);
-
-
+void ConnectTejo(char *string, Server *info);
+void join(char list[6][50], Server info,int *i);
+void leave(Server info,int *i);
 
 
 #endif

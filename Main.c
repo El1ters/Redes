@@ -7,10 +7,11 @@ int main(int argc, char **argv){
     char string[128];
     socklen_t addrlen;
     struct sockaddr_in addr;
-    char IP[25] = "127.0.0.1", TCP[10] = "8080";
-    char id[3], net[4];
+    Server info;
+    strcpy(info.ip,"127.0.0.1");
+    strcpy(info.tcp,"8080");
 
-    fd = Init_Server(IP,TCP);
+    fd = Init_Server(info);
     while(1){
         FD_SET(0,&rfds);
         FD_SET(3,&rfds);
@@ -23,15 +24,11 @@ int main(int argc, char **argv){
                 exit(0);
             } 
             if(strcmp(string,"\n") == 0) continue;
-
-            /*Alocar char list[6][50], fazer o strtok, passar como argumento na funçao debaixo*/
-
-            ConnectTejo(string,strlen(string),IP,TCP,fd,id,net);
+            ConnectTejo(string,&info);
         }
-
         if(FD_ISSET(3,&rfds)){
             addrlen = sizeof(addr);
-            if((newfd = accept(fd,(struct sockaddr*)&addr,(socklen_t*)&addrlen)) == -1)exit(1);
+            if((newfd = accept(fd,(struct sockaddr*)&addr,(socklen_t*)&addrlen)) == -1) exit(1);
             FD_SET(newfd,&rfds);
         }
         FD_ZERO(&rfds);
