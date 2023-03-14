@@ -83,3 +83,40 @@ void SendMessage(char *string,int count){
     freeaddrinfo(res);
     close(fd);
 }
+
+int EstablishConnection(char *ip,char *tcp){
+    int fd,errcode;
+    ssize_t n;
+    socklen_t addrlen;
+    struct addrinfo hints, *res;
+    struct sockaddr_in addr;
+    char buffer[128];
+
+    fd = socket(AF_INET,SOCK_STREAM, 0);
+    if(fd == -1) exit(1);
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    errcode = getaddrinfo(ip,tcp, &hints, &res);
+    if(errcode != 0) exit(1);
+
+    n = connect(fd, res->ai_addr, res->ai_addrlen);
+    if(n==-1){
+        fprintf(stderr,"error: %s\n",strerror(errno));
+        exit(1);
+    } 
+
+    n = write(fd,"Hello!\n", 7);
+    if(n == -1) exit(1);
+
+    /*printf("oi\n");
+    n = read(fd, buffer, 128);
+    if(n == -1) exit(1);
+    printf("ola\n");*/
+    
+    write(1,"echo: ",6); write(1, buffer,n); write(1,"\n",1);
+    freeaddrinfo(res);
+    return fd;
+}

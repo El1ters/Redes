@@ -6,5 +6,6 @@
 int Init_Server(Server info);
 char *Give_List(char* string,int count);
 void SendMessage(char *string,int count);
+int EstablishConnection(char *ip,char *tcp);
 
 #endif

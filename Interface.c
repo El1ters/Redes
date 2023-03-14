@@ -53,6 +53,7 @@ void join(char list[6][50],Server info, int *i){
     char str1[10]="NODES 079";
     char str2[128]="REG ";
     char *nodeslist;
+    int fd;
 
     strcat(str2,list[1]);
     strcat(str2," ");
@@ -66,9 +67,16 @@ void join(char list[6][50],Server info, int *i){
     if(strcmp(nodeslist, "NODESLIST 079\n") == 0){
         SendMessage(str2,strlen(str2));
         *i = 1;
-    }/*else{
-        Conectar a um nó
-    }*/
+    } else {
+        char id[3], ip[16], port[16];
+        char *token = strtok(nodeslist,"\n");
+        token = strtok(NULL,"\n");
+        sscanf(token,"%s %s %s",id,ip,port);
+        printf("%s %s\n",ip,port);
+        fd = EstablishConnection(ip,port);
+        printf("depois\n");
+        fflush(stdout);
+    }
     free(nodeslist);
 }
 
@@ -82,3 +90,4 @@ void leave(Server info,int *i){
         (*i)++;
     }
 }
+

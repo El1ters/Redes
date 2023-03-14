@@ -8,8 +8,14 @@ int main(int argc, char **argv){
     socklen_t addrlen;
     struct sockaddr_in addr;
     Server info;
-    strcpy(info.ip,"127.0.0.1");
-    strcpy(info.tcp,"8080");
+    strcpy(info.ip,argv[1]);
+    strcpy(info.tcp,argv[2]);
+
+    char buffer[128];
+    int n;
+
+    /* Definir depois as variaveis dentro da struct server tejo_ip - ip do tejo tejo_udp - port do tejo
+    Passar algures como argumento para as fuçoes de baixo*/
 
     fd = Init_Server(info);
     while(1){
@@ -29,10 +35,11 @@ int main(int argc, char **argv){
         if(FD_ISSET(3,&rfds)){
             addrlen = sizeof(addr);
             if((newfd = accept(fd,(struct sockaddr*)&addr,(socklen_t*)&addrlen)) == -1) exit(1);
+            n = recvfrom(newfd,buffer,128,0,(struct sockaddr*)&addr,&addrlen);
+            write(1,buffer,n);
             FD_SET(newfd,&rfds);
         }
         FD_ZERO(&rfds);
-    }
-    
+    } 
     return 0;
 }
