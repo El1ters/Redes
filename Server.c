@@ -1,7 +1,7 @@
 #include "Main.h"
 #include "Server.h"
 
-int Init_Server(char *IP,char *TCP){
+int Init_Server(Server info){
     struct addrinfo hints, *res;
     ssize_t n;
     int errcode,fd;
@@ -13,7 +13,7 @@ int Init_Server(char *IP,char *TCP){
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
 
-    errcode = getaddrinfo(IP,TCP,&hints,&res);
+    errcode = getaddrinfo(info.ip,info.tcp,&hints,&res);
 
     if((errcode) != 0) exit(1);
     n = bind(fd,res->ai_addr,res->ai_addrlen);
@@ -24,13 +24,13 @@ int Init_Server(char *IP,char *TCP){
     return fd;
 }
 
-
+ 
 char *Give_List(char *string,int count){
     char *nodeslist = (char *)malloc(256);
     socklen_t addrlen;
     struct addrinfo hints,*res;
     struct sockaddr_in addr;
-    ssize_t m, g ;
+    ssize_t m;
     int fd,errcode;
 
     fd = socket(AF_INET,SOCK_DGRAM,0); //UDP socket
