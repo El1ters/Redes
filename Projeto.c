@@ -12,9 +12,10 @@
 
 
 
-void ConnectTejo(char *string,int count,char *IP,char *TCP);
+void ConnectTejo(char *string,int count,char *IP,char *TCP,int fd);
 int Init_Server(char *IP,char *TCP);
 void join(char list[6][50],char *ID, char* TCP);
+void leave(char list[6][50],int fd);
 char *Give_List(char*string,int count);
 void SendMessage(char *string,int count);
 
@@ -40,7 +41,11 @@ int main(int argc, char **argv){
                 close(fd);
                 exit(0);
             } 
-            ConnectTejo(string,strlen(string),IP,TCP);
+            if(strcmp(string,"\n") == 0) continue;
+
+            /*Alocar char list[6][50], fazer o strtok, passar como argumento na funçao debaixo*/
+
+            ConnectTejo(string,strlen(string),IP,TCP,fd);
         }
 
         if(FD_ISSET(3,&rfds)){
@@ -48,24 +53,19 @@ int main(int argc, char **argv){
             if((newfd = accept(fd,(struct sockaddr*)&addr,(socklen_t*)&addrlen)) == -1)exit(1);
             FD_SET(newfd,&rfds);
         }
-        
         FD_ZERO(&rfds);
     }
     
     return 0;
 }
 
-void ConnectTejo(char *string,int count,char *IP,char *TCP){
-    int fd, errcode, i = 0;
-    ssize_t n;
-    socklen_t addrlen;
-    struct addrinfo hints,*res;
-    struct sockaddr_in addr;
-    char /*buffer[128],*/list[6][50] = {}, *token;
-
+void ConnectTejo(char *string,int count,char *IP,char *TCP,int fd){
+    int i = 0;
+    char list[6][50] = {}, *token;
     token = strtok(string," ");
     while(token != NULL){
-        strcpy(list[i],token);
+        if(token != NULL)
+            strcpy(list[i],token);
         token = strtok(NULL," ");
         i++;
     }
@@ -100,29 +100,8 @@ void ConnectTejo(char *string,int count,char *IP,char *TCP){
         }
     }*/
     else if (strcmp(list[0], "leave") == 0){
-
+        leave(list,fd);
     }
-
-    /*fd = socket(AF_INET,SOCK_DGRAM,0); //UDP socket
-    if(fd == -1)  exit(1);
-    memset(&hints,0,sizeof hints);
-    hints.ai_family=AF_INET; // IPv4
-    hints.ai_socktype=SOCK_DGRAM; // UDP socket
-    hints.ai_flags=AI_PASSIVE;
-
-    printf("%s\n",string);
-    errcode = getaddrinfo("tejo.tecnico.ulisboa.pt","59000",&hints,&res);
-    if(errcode != 0)  exit(1);
-
-        n = sendto(fd,string,count,0,res->ai_addr,res->ai_addrlen);
-        if(n == -1)  exit(1);
-        addrlen = sizeof(addr);
-        n = recvfrom(fd,buffer,128,0,(struct sockaddr*)&addr,&addrlen);
-        if(n == -1)  exit(1);
-        write(1,"echo: ",6); write(1,buffer,n);
-    freeaddrinfo(res);
-    close(fd);
-    */
 }
 
 /*void User(char *string,int count){
@@ -174,6 +153,16 @@ void join(char list[6][50],char *IP, char* TCP){
         Conectar a um nó
     }*/
     free(nodeslist);
+}
+
+void leave(char list[6][50],int fd){
+    char str[128] = "UNREG ";
+    strcat(str,list[1]);
+    strcat(str," ");
+    strcat(str,list[2]);
+    printf("%s\n",str);
+    SendMessage(str,strlen(str));
+    close(fd);
 }
 
 char *Give_List(char *string,int count){
