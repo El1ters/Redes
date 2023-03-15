@@ -74,8 +74,6 @@ void join(char list[6][50],Server info, int *i){
         sscanf(token,"%s %s %s",id,ip,port);
         printf("%s %s\n",ip,port);
         fd = EstablishConnection(ip,port);
-        printf("depois\n");
-        fflush(stdout);
     }
     free(nodeslist);
 }

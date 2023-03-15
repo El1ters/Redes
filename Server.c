@@ -88,7 +88,7 @@ int EstablishConnection(char *ip,char *tcp){
     int fd,errcode;
     ssize_t n;
     socklen_t addrlen;
-    struct addrinfo hints, *res;
+    struct addrinfo hints, *res; 
     struct sockaddr_in addr;
     char buffer[128];
 
@@ -111,11 +111,9 @@ int EstablishConnection(char *ip,char *tcp){
     n = write(fd,"Hello!\n", 7);
     if(n == -1) exit(1);
 
-    /*printf("oi\n");
-    n = read(fd, buffer, 128);
-    if(n == -1) exit(1);
-    printf("ola\n");*/
-    
+  /*n = read(fd, buffer, 128);
+    if(n == -1) exit(1);*/
+
     write(1,"echo: ",6); write(1, buffer,n); write(1,"\n",1);
     freeaddrinfo(res);
     return fd;

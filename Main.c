@@ -8,17 +8,18 @@ int main(int argc, char **argv){
     socklen_t addrlen;
     struct sockaddr_in addr;
     Server info;
-    strcpy(info.ip,argv[1]);
-    strcpy(info.tcp,argv[2]);
+    //strcpy(info.ip,argv[1]);
+    //strcpy(info.tcp,argv[2]);
 
     char buffer[128];
     int n;
+    VerifyIP(argc,argv,&info); 
 
     /* Definir depois as variaveis dentro da struct server tejo_ip - ip do tejo tejo_udp - port do tejo
     Passar algures como argumento para as fuçoes de baixo*/
 
     fd = Init_Server(info);
-    while(1){
+    while(1){ 
         FD_SET(0,&rfds);
         FD_SET(3,&rfds);
         maxfd = fd;

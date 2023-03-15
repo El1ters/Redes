@@ -13,7 +13,6 @@
 #include <errno.h>
 #include <stdio.h>
 
-
 typedef struct nodes{
     char id[3];
     char backup[3];
@@ -28,5 +27,6 @@ typedef struct server{
 
 #include "Interface.h"
 #include "Server.h"
+#include "Verifications.h"
 
 #endif
