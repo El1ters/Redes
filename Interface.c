@@ -72,8 +72,9 @@ void join(char list[6][50],Server info, int *i){
         char *token = strtok(nodeslist,"\n");
         token = strtok(NULL,"\n");
         sscanf(token,"%s %s %s",id,ip,port);
-        printf("%s %s\n",ip,port);
         fd = EstablishConnection(ip,port);
+        SendMessage(str2,strlen(str2));
+        *i = 1;
     }
     free(nodeslist);
 }

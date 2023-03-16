@@ -36,8 +36,9 @@ int main(int argc, char **argv){
         if(FD_ISSET(3,&rfds)){
             addrlen = sizeof(addr);
             if((newfd = accept(fd,(struct sockaddr*)&addr,(socklen_t*)&addrlen)) == -1) exit(1);
-            n = recvfrom(newfd,buffer,128,0,(struct sockaddr*)&addr,&addrlen);
-            write(1,buffer,n);
+            n = read(newfd,buffer,128); 
+            write(1,"received: ",10); write(1,buffer,n);
+            n = write(newfd,buffer,n);
             FD_SET(newfd,&rfds);
         }
         FD_ZERO(&rfds);

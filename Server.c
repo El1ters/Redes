@@ -111,10 +111,10 @@ int EstablishConnection(char *ip,char *tcp){
     n = write(fd,"Hello!\n", 7);
     if(n == -1) exit(1);
 
-  /*n = read(fd, buffer, 128);
-    if(n == -1) exit(1);*/
+    n = read(fd, buffer, 128);
+    if(n == -1) exit(1);
 
-    write(1,"echo: ",6); write(1, buffer,n); write(1,"\n",1);
+    write(1,"echo: ",6); write(1, buffer,n);
     freeaddrinfo(res);
     return fd;
 }

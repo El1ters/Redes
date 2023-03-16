@@ -13,17 +13,19 @@
 #include <errno.h>
 #include <stdio.h>
 
-typedef struct nodes{
-    char id[3];
-    char backup[3];
-}Nodes;
-
 typedef struct server{
     char ip[16];
     char id[3];
     char net[4];
     char tcp[10];
 }Server;
+
+typedef struct nodes{
+    char id[3];
+    char bck[3];
+    Server intr[99];
+    Server ext;
+}Nodes;
 
 #include "Interface.h"
 #include "Server.h"
