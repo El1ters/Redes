@@ -12,6 +12,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
+#include <time.h>
 
 /*Estrutura que tem a informaçao de um vizinho*/
 typedef struct neighbors{
@@ -25,7 +26,7 @@ typedef struct neighbors{
 typedef struct server{
     char ip[16];
     char id[3];
-    char net[4];
+    char net[4];   
     char tcp[10];
 }Server;
 

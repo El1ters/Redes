@@ -43,3 +43,13 @@ int ContainLetter(char *argv){
     }
     return 0;
 }
+
+int Repeated(char *nodeslist){
+    srand(time(NULL));
+    char aux[3];
+    char *token = strtok(nodeslist,"\n");
+    while (token != NULL){
+        token = strtok(NULL,"\n");
+        sscanf(token,"%s",aux);
+    }
+}

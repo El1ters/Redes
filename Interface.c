@@ -29,8 +29,9 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
         strcat(compare,info->net);
         strcat(compare,"\n");
         char *nodeslist = Give_List(udp_message,strlen(udp_message));
-        
+
         if(strcmp(nodeslist,compare) == 0){
+            strcpy(variables->bck,variables->id);
             Register(list,*info);
             primeiro = 1;
         }else if(primeiro == 0){

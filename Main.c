@@ -39,7 +39,7 @@ int main(int argc, char **argv){
             if((newfd = accept(fd,(struct sockaddr*)&addr,(socklen_t*)&addrlen)) == -1) exit(1);
             n = read(newfd,buffer,128); 
             write(1,"received: ",10); write(1,buffer,n);
-            n = write(newfd,buffer,n);
+            n = write(newfd,"bitch!\n",8);
             FD_SET(newfd,&rfds);
         }
         FD_ZERO(&rfds);
