@@ -1,9 +1,9 @@
 #include "Main.h"
 #include "Interface.h"
 
-void ConnectTejo(char *string, Server *info){
+void ConnectTejo(char *string, Server *info,Nodes *variables){
     int i = 0;
-    static int primeiro = 0;
+    static int primeiro = 0; /*0 significa que posso usar o comando "join", 1 significa o contrario*/
     char list[6][50] = {}, *token;
     token = strtok(string," ");
     while(token != NULL){
@@ -15,9 +15,29 @@ void ConnectTejo(char *string, Server *info){
     token = strtok(list[--i],"\n");
 
     if (strcmp(list[0], "join") == 0 && strlen(list[1]) == 3 && strlen(list[2]) == 2 && strlen(list[3]) == 0){
-        strcpy(info->id,list[2]);
-        strcpy(info->net,list[1]);
-        join(list,*info,&primeiro);
+        char udp_message[10] = "NODES ";
+        char compare[20] =  "NODESLIST ";
+
+
+        if(primeiro == 0){
+            strcpy(info->id,list[2]);
+            strcpy(info->net,list[1]);
+            strcpy(variables->id,list[2]);
+        }
+
+        strcat(udp_message,info->net);
+        strcat(compare,info->net);
+        strcat(compare,"\n");
+        char *nodeslist = Give_List(udp_message,strlen(udp_message));
+        
+        if(strcmp(nodeslist,compare) == 0){
+            Register(list,*info);
+            primeiro = 1;
+        }else if(primeiro == 0){
+            join(list,*variables,*info,nodeslist);
+            primeiro = 1;
+        }
+        free(nodeslist);
     }/*
     else if (strcmp(key, "djoin") == 0 && primeiro != 0)
     {
@@ -47,12 +67,22 @@ void ConnectTejo(char *string, Server *info){
         leave(*info,&primeiro);
     }
 }
-
-
-void join(char list[6][50],Server info, int *i){
+void Register(char list[6][50],Server info){
     char str1[10]="NODES 079";
     char str2[128]="REG ";
-    char *nodeslist;
+
+    strcat(str2,list[1]);
+    strcat(str2," ");
+    strcat(str2,list[2]);
+    strcat(str2," ");
+    strcat(str2,info.ip);
+    strcat(str2," ");
+    strcat(str2,info.tcp);
+    SendMessage(str2,strlen(str2));
+}
+
+int join(char list[6][50],Nodes variables, Server info, char *nodeslist){
+    char str2[128]="REG ";
     int fd;
 
     strcat(str2,list[1]);
@@ -63,20 +93,13 @@ void join(char list[6][50],Server info, int *i){
     strcat(str2," ");
     strcat(str2,info.tcp);
 
-    nodeslist = Give_List(str1,strlen(str1));
-    if(strcmp(nodeslist, "NODESLIST 079\n") == 0){
-        SendMessage(str2,strlen(str2));
-        *i = 1;
-    } else {
-        char id[3], ip[16], port[16];
-        char *token = strtok(nodeslist,"\n");
-        token = strtok(NULL,"\n");
-        sscanf(token,"%s %s %s",id,ip,port);
-        fd = EstablishConnection(ip,port);
-        SendMessage(str2,strlen(str2));
-        *i = 1;
-    }
-    free(nodeslist);
+    char id[3], ip[16], port[10];
+    char *token = strtok(nodeslist,"\n");
+    token = strtok(NULL,"\n");
+    sscanf(token,"%s %s %s",id,ip,port);
+    fd = EstablishConnection(ip,port);
+    SendMessage(str2,strlen(str2));
+    return fd;
 }
 
 void leave(Server info,int *i){
@@ -86,7 +109,7 @@ void leave(Server info,int *i){
     strcat(str,info.id);
     if(*i == 1){
         SendMessage(str,strlen(str));
-        (*i)++;
+        (*i) = 0;
     }
 }
 

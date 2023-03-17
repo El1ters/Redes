@@ -8,6 +8,7 @@ int main(int argc, char **argv){
     socklen_t addrlen;
     struct sockaddr_in addr;
     Server info;
+    Nodes variables;
     //strcpy(info.ip,argv[1]);
     //strcpy(info.tcp,argv[2]);
 
@@ -31,7 +32,7 @@ int main(int argc, char **argv){
                 exit(0);
             } 
             if(strcmp(string,"\n") == 0) continue;
-            ConnectTejo(string,&info);
+            ConnectTejo(string,&info,&variables);
         }
         if(FD_ISSET(3,&rfds)){
             addrlen = sizeof(addr);
