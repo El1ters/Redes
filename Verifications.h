@@ -5,7 +5,7 @@
 
 void VerifyIP(int argc,char **argv,Server *info);
 int ContainLetter(char *argv);
-void verify_id_is_used(char *nodelist);
+char *verify_id_is_used(char *nodelist);
 
 
 #endif

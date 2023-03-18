@@ -44,23 +44,22 @@ int ContainLetter(char *argv){
     return 0;
 }
 
-void verify_id_is_used(char *nodelist){
+char *verify_id_is_used(char *nodelist){
    char *ids[99], *token;
    int i = 0;
    token = strtok(nodelist,"\n");
    token = strtok(NULL,"\n");
    ids[i] = token;
-   printf("primeiro: %s\n",ids[i]);
    i++;
     while(token != NULL){
         token = strtok(NULL,"\n");
         if (token != NULL){
             ids[i] = token;
-            printf("cona de sabao %s\n",ids[i]);
         }
         i++;
    }
     int line = rand() % (i-1);
-    printf("%s\n",ids[line]);
-   
+    char *selected = (char *) malloc(strlen(ids[line])+1);
+    strcpy(selected,ids[line]); 
+    return selected; 
 }

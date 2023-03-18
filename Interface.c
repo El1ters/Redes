@@ -35,15 +35,25 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
             Register(list,*info);
             primeiro = 1;
         }else if(primeiro == 0){
-            verify_id_is_used(nodeslist);
-            //join(list,*variables,*info,nodeslist);
+            char *selected = verify_id_is_used(nodeslist);
+            printf("no selecionado: %s\n",selected);
+            join(list,*variables,*info,selected);
             primeiro = 1;
+            free(selected);
         }
         free(nodeslist);
-    }/*
-    else if (strcmp(key, "djoin") == 0 && primeiro != 0)
-    {
     }
+    else if (strcmp(list[0], "djoin") == 0 && strlen(list[1]) != 3 && strlen(list[2]) != 2 && primeiro == 0){
+        //Nao esta a funcionar
+        char boot[30];
+        strcat(boot,list[3]); strcat(boot," "); strcat(boot,list[4]); strcat(boot," "); strcat(boot,list[5]);
+        strcpy(info->id,list[2]);
+        strcpy(info->net,list[1]);
+        strcpy(variables->id,list[2]);
+        join(list,*variables,*info,boot);
+        primeiro = 1;
+        /*Chamar a funçao djoin para os parametros*/
+    }/*
     else if ((strcmp(key, "create") == 0))
     {
     }
@@ -82,8 +92,7 @@ void Register(char list[6][50],Server info){
     strcat(str2,info.tcp);
     SendMessage(str2,strlen(str2));
 }
-
-int join(char list[6][50],Nodes variables, Server info, char *nodeslist){
+int join(char list[6][50],Nodes variables, Server info, char *selected){
     char str2[128]="REG ";
     int fd;
 
@@ -96,8 +105,8 @@ int join(char list[6][50],Nodes variables, Server info, char *nodeslist){
     strcat(str2,info.tcp);
 
     char id[3], ip[16], port[10];
-    char *token = strtok(nodeslist,"\n");
-    token = strtok(NULL,"\n");
+    char *token = strtok(selected,"\n");
+    printf("%s",token);
     sscanf(token,"%s %s %s",id,ip,port);
     fd = EstablishConnection(ip,port);
     SendMessage(str2,strlen(str2));
