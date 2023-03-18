@@ -44,12 +44,23 @@ int ContainLetter(char *argv){
     return 0;
 }
 
-int Repeated(char *nodeslist){
-    srand(time(NULL));
-    char aux[3];
-    char *token = strtok(nodeslist,"\n");
-    while (token != NULL){
+void verify_id_is_used(char *nodelist){
+   char *ids[99], *token;
+   int i = 0;
+   token = strtok(nodelist,"\n");
+   token = strtok(NULL,"\n");
+   ids[i] = token;
+   printf("primeiro: %s\n",ids[i]);
+   i++;
+    while(token != NULL){
         token = strtok(NULL,"\n");
-        sscanf(token,"%s",aux);
-    }
+        if (token != NULL){
+            ids[i] = token;
+            printf("cona de sabao %s\n",ids[i]);
+        }
+        i++;
+   }
+    int line = rand() % (i-1);
+    printf("%s\n",ids[line]);
+   
 }

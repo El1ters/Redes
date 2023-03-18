@@ -35,7 +35,8 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
             Register(list,*info);
             primeiro = 1;
         }else if(primeiro == 0){
-            join(list,*variables,*info,nodeslist);
+            verify_id_is_used(nodeslist);
+            //join(list,*variables,*info,nodeslist);
             primeiro = 1;
         }
         free(nodeslist);

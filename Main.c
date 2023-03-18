@@ -1,6 +1,7 @@
 #include "Main.h"
 
 int main(int argc, char **argv){
+    srand(time(NULL));
     int fd, newfd;
     fd_set rfds;
     int maxfd, counter;
@@ -9,8 +10,6 @@ int main(int argc, char **argv){
     struct sockaddr_in addr;
     Server info;
     Nodes variables;
-    //strcpy(info.ip,argv[1]);
-    //strcpy(info.tcp,argv[2]);
 
     char buffer[128];
     int n;
