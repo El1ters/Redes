@@ -31,6 +31,7 @@ void VerifyIP(int argc,char **argv,Server *info){
         exit(1);
     }  
     strcpy(info->ip,argv[1]); 
+    strcpy(info->tcp,argv[2]);
 }
 
 int ContainLetter(char *argv){
@@ -58,6 +59,8 @@ char *verify_id_is_used(char *nodelist){
         }
         i++;
    }
+    if(i == 2) numero_ancoras = 2;
+
     int line = rand() % (i-1);
     char *selected = (char *) malloc(strlen(ids[line])+1);
     strcpy(selected,ids[line]); 

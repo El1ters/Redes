@@ -38,6 +38,8 @@ typedef struct nodes{
     Neighbors ext;
 }Nodes;
 
+extern int numero_ancoras;
+
 #include "Interface.h"
 #include "Server.h"
 #include "Verifications.h"

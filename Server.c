@@ -84,7 +84,41 @@ void SendMessage(char *string,int count){
     close(fd);
 }
 
-int EstablishConnection(char *ip,char *tcp){
+void SendExtern(int newfd, Nodes *variables){ //Funçao que responde ao vizinho interno
+    char buffer[50];
+    char tosend[50] = "EXTERN ";
+    int n;
+    strcat(tosend,variables->ext.id); strcat(tosend," ");
+    strcat(tosend,variables->ext.ip); strcat(tosend," ");
+    strcat(tosend,variables->ext.tcp); strcat(tosend,"\n");
+    printf("%s\n",tosend);
+    n = read(newfd,buffer,50); 
+    write(1,"received: ",10); write(1,buffer,n);
+    n = write(newfd, tosend, strlen(tosend) + 1);
+    
+    /*Atualizar o intr*/ 
+}
+
+void SendNew(int fd,Server info){
+    ssize_t n;
+    char aux[25] = {};
+    char buffer[50];
+    strcat(aux,"NEW ");
+    strcat(aux,info.id); strcat(aux," ");
+    strcat(aux,info.ip); strcat(aux," ");
+    strcat(aux,info.tcp); strcat(aux,"\n");
+
+    n = write(fd,aux,strlen(aux));
+    if(n == -1) exit(1);
+
+    n = read(fd, buffer, 128);
+    if(n == -1) exit(1);
+
+    write(1,"echo: ",6); write(1,buffer,n);
+    /*Atualizar o Backup*/
+}
+
+int EstablishConnection(char *ip,char *tcp, Server info){ //Funçao que estabelece a ligaçao a um no e lhe manda o NEW
     int fd,errcode;
     ssize_t n;
     socklen_t addrlen;
@@ -107,14 +141,14 @@ int EstablishConnection(char *ip,char *tcp){
         fprintf(stderr,"error: %s\n",strerror(errno));
         exit(1);
     } 
-
-    n = write(fd,"Hello!\n", 7);
-    if(n == -1) exit(1);
-
-    n = read(fd, buffer, 128);
-    if(n == -1) exit(1);
-
-    write(1,"echo: ",6); write(1, buffer,n);
     freeaddrinfo(res);
     return fd;
+}
+
+void SetAncor(Server info){
+    char udp_message[10] = "NODES "; 
+    strcat(udp_message,info.net);
+    char *nodeslist = Give_List(udp_message,strlen(udp_message));
+    char *selected = verify_id_is_used(nodeslist);
+    free(nodeslist); free(selected);
 }

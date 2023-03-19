@@ -17,8 +17,6 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
     if (strcmp(list[0], "join") == 0 && strlen(list[1]) == 3 && strlen(list[2]) == 2 && strlen(list[3]) == 0){
         char udp_message[10] = "NODES ";
         char compare[20] =  "NODESLIST ";
-
-
         if(primeiro == 0){
             strcpy(info->id,list[2]); //Guardar o ID do meu server na info
             strcpy(info->net,list[1]); //Guardar o net na info
@@ -31,14 +29,20 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
         char *nodeslist = Give_List(udp_message,strlen(udp_message));
 
         if(strcmp(nodeslist,compare) == 0){
-            strcpy(variables->bck.id,variables->id); //No primeiro nó da rede o bck é ele proprio
+            strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
+            strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp); 
             Register(list,*info);
+            numero_ancoras = 1;
             primeiro = 1;
+            //printf("Lista vazia ->ancoras: %d\n",numero_ancoras);
         }else if(primeiro == 0){
             char *selected = verify_id_is_used(nodeslist);
+            //printf("ancoras %d\n",numero_ancoras);
             sscanf(selected,"%s %s %s",variables->ext.id,variables->ext.ip,variables->ext.tcp); //Guardar as informaçoes do externo
-            strcpy(variables->bck.id,variables->ext.id);
-            /*Durante o join tenho que fazer o NEW e o EXTERN*/
+            if(numero_ancoras == 2){
+                strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
+                numero_ancoras++;
+            }
             variables->ext.fd = join(list,*variables,*info,selected);
             primeiro = 1;
             free(selected);
@@ -47,18 +51,27 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
     }
     else if (strcmp(list[0], "djoin") == 0 && strlen(list[1]) == 3 && strlen(list[2]) == 2 && primeiro == 0){
         if (strcmp(list[2],list[3]) == 0){
-            strcpy(variables->bck.id,variables->id); //No primeiro nó da rede o bck é ele proprio
+            strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
+            strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp);
             strcpy(variables->id,list[2]); //Guardar o id da minha maquina na struct
             Register(list,*info);
+            numero_ancoras = 1;
             primeiro = 1;
         } else {
-            char boot[30];
-            strcat(boot,list[3]); strcat(boot," "); strcat(boot,list[4]); strcat(boot," "); strcat(boot,list[5]);
             strcpy(info->id,list[2]); 
             strcpy(info->net,list[1]);
-            strcpy(variables->id,list[2]);
-            strcpy(variables->ext.id,list[3]); strcpy(variables->ext.ip,list[4]); strcpy(variables->ext.tcp,list[5]); //Guardar informaçoes do externo
-            strcpy(variables->bck.id,list[3]);
+            SetAncor(*info);
+            char boot[30];
+            strcat(boot,list[3]); strcat(boot," "); strcat(boot,list[4]); strcat(boot," "); strcat(boot,list[5]);
+
+            if(numero_ancoras == 2){
+                strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
+                strcpy(variables->ext.id,list[3]); strcpy(variables->ext.ip,list[4]); strcpy(variables->ext.tcp,list[5]);
+                numero_ancoras++;
+            }else{
+                strcpy(variables->id,list[2]);
+                strcpy(variables->ext.id,list[3]); strcpy(variables->ext.ip,list[4]); strcpy(variables->ext.tcp,list[5]); //Guardar informaçoes do externo
+            }
             variables->ext.fd = join(list,*variables,*info, boot);
             primeiro = 1;
         }
@@ -72,7 +85,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
     else if (strcmp(key, "get") == 0)
     {
     }*/
-    else if ((strcmp(list[0], "show") == 0 && strcmp(list[0], "topology\n")) || strcmp(list[0], "st") == 0){
+    else if ((strcmp(list[0], "show") == 0 && strcmp(list[0], "topology\n") == 0) || strcmp(list[0], "st") == 0){
         PrintContacts(*variables);
     }
     else if (strcmp(list[0], "leave") == 0 && strlen(list[1]) == 0){
@@ -116,7 +129,8 @@ int join(char list[6][50],Nodes variables, Server info, char *selected){
     char id[3], ip[16], port[10];
     char *token = strtok(selected,"\n");
     sscanf(token,"%s %s %s",id,ip,port);
-    fd = EstablishConnection(ip,port);
+    fd = EstablishConnection(ip,port,info); /*IP e PORT sao os parametros do qual eu me quero ligar*/
+    SendNew(fd,info); // Recebe informaçao do backup
     SendMessage(str2,strlen(str2));
     return fd;
 }
