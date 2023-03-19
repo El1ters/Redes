@@ -17,8 +17,8 @@
 /*Estrutura que tem a informaçao de um vizinho*/
 typedef struct neighbors{
     int fd;
-    char ip[16];
     char id[3];
+    char ip[16];
     char tcp[10];
 }Neighbors;
 
@@ -33,7 +33,7 @@ typedef struct server{
 /*Estrutura que tem a informaçao do backup e dos seus vizinhos internos e externo*/
 typedef struct nodes{
     char id[3];
-    char bck[3];
+    Neighbors bck;
     Neighbors intr[99];
     Neighbors ext;
 }Nodes;

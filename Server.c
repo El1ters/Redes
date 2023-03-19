@@ -49,7 +49,7 @@ char *Give_List(char *string,int count){
     m = recvfrom(fd,nodeslist,256,0,(struct sockaddr*)&addr,&addrlen);
     if(m == -1)  exit(1);
 
-    write(1,"echo: ",6); write(1,nodeslist,m);
+    write(1,"echo: ",6); write(1,nodeslist,m); write(1,"\n",1);
     freeaddrinfo(res);
     close(fd);
     return nodeslist;

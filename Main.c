@@ -19,6 +19,7 @@ int main(int argc, char **argv){
     Passar algures como argumento para as fuçoes de baixo*/
 
     fd = Init_Server(info);
+    int number_on = 0;
     while(1){ 
         FD_SET(0,&rfds);
         FD_SET(3,&rfds);
@@ -32,6 +33,7 @@ int main(int argc, char **argv){
             } 
             if(strcmp(string,"\n") == 0) continue;
             ConnectTejo(string,&info,&variables);
+            //printf("ext: id:%s ip:%s tcp:%s fd:%d\n",variables.ext.id,variables.ext.ip,variables.ext.tcp,variables.ext.fd);
         }
         if(FD_ISSET(3,&rfds)){
             addrlen = sizeof(addr);
