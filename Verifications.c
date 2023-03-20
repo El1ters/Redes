@@ -39,10 +39,10 @@ int ContainLetter(char *argv){
     char *aux = argv;
     for(int j = 0;j != i;j++){
         if(*aux < 48 || *aux > 57)
-            return 1;
+            return 1; // 1 caso conter letra
         aux++;
     }
-    return 0;
+    return 0; // 0 caso nao conter
 }
 
 char *verify_id_is_used(char *nodelist){

@@ -117,7 +117,7 @@ void Register(char list[6][50],Server info){
 int join(char list[6][50],Nodes variables, Server info, char *selected){
     char str2[128]="REG ";
     int fd;
-
+    char *ext;
     strcat(str2,list[1]);
     strcat(str2," ");
     strcat(str2,list[2]);
@@ -130,7 +130,8 @@ int join(char list[6][50],Nodes variables, Server info, char *selected){
     char *token = strtok(selected,"\n");
     sscanf(token,"%s %s %s",id,ip,port);
     fd = EstablishConnection(ip,port,info); /*IP e PORT sao os parametros do qual eu me quero ligar*/
-    SendNew(fd,info); // Recebe informaçao do backup
+    ext = SendNew(fd,info); // Manda o NEW e recebe informaçao do backup
+    printf("adeus: %s\n",ext);
     SendMessage(str2,strlen(str2));
     return fd;
 }

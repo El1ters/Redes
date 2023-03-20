@@ -40,10 +40,15 @@ int main(int argc, char **argv){
                 char buffer[50];
                 n = read(newfd,buffer,50);
                 printf("buffer: %s\n",buffer);
-                n = write(newfd,"ancora\n",strlen("ancora\n")+1);
+                char * intern;
+                intern = SendExtern(newfd,&variables);
                 sscanf(buffer,"NEW %s %s %s",variables.ext.id,variables.ext.ip,variables.ext.tcp);
-            }else
-                SendExtern(newfd,&variables); //Recebe informaçao do interno
+            }else{
+                char * intern;
+                intern = SendExtern(newfd,&variables);
+                printf("ola: %s\n",intern);
+            }
+                //manda o EXTERN e recebe informaçao do interno
             FD_SET(newfd,&rfds);
         }
 
