@@ -1,7 +1,7 @@
 #include "Main.h"
 #include "Interface.h"
 
-void ConnectTejo(char *string, Server *info,Nodes *variables){
+void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     int i = 0;
     static int primeiro = 0; /*0 significa que posso usar o comando "join", 1 significa o contrario*/
     char list[6][50] = {}, *token;
@@ -31,14 +31,17 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
         /*Verifica se a lista de nos esta vazia*/
         if(strcmp(nodeslist,compare) == 0){ 
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
-            strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp); 
+            strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp);
+            variables->ext.fd = 3; 
             Register(list,*info);
             primeiro = 1;
             first_node = 1; //indica q é o primeiro no entrante no servidor
         } else if(primeiro == 0){
             char *selected = verify_id_is_used(nodeslist);
             sscanf(selected,"%s %s %s",variables->ext.id,variables->ext.ip,variables->ext.tcp); //Guardar as informaçoes do externo
+            strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             variables->ext.fd = join(list,*variables,*info,selected);
+            *maxfd = variables->ext.fd;
             primeiro = 1;
             free(selected);
         }
@@ -90,6 +93,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
 
 void PrintContacts(Nodes variables){
     printf("Vizinho Externo\n");
+    //printf("%d\n",variables.ext.fd);
     printf("ID:%s IP:%s TCP:%s\n\n",variables.ext.id,variables.ext.ip,variables.ext.tcp);
     printf("Vizinho de Backup\n");
     printf("ID:%s IP:%s TCP:%s\n\n",variables.bck.id,variables.bck.ip,variables.bck.tcp);
@@ -112,7 +116,6 @@ void Register(char list[6][50],Server info){
 int join(char list[6][50],Nodes variables, Server info, char *selected){
     char str2[128]="REG ";
     int fd;
-    char *ext;
     strcat(str2,list[1]);
     strcat(str2," ");
     strcat(str2,list[2]);
@@ -126,7 +129,6 @@ int join(char list[6][50],Nodes variables, Server info, char *selected){
     sscanf(token,"%s %s %s",id,ip,port);
     fd = EstablishConnection(ip,port,info); /*IP e PORT sao os parametros do qual eu me quero ligar*/
     SendNew(fd,info); // Manda o NEW e recebe informaçao do backup
-    //char id_aux[3],ip_aux[16], port_aux[10];
     SendMessage(str2,strlen(str2));
     return fd;
 }

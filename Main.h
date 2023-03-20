@@ -39,6 +39,8 @@ typedef struct nodes{
 }Nodes;
 
 extern int first_node;
+extern fd_set rfds;
+extern int number_on;
 
 #include "Interface.h"
 #include "Server.h"

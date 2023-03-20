@@ -84,27 +84,19 @@ void SendMessage(char *string,int count){
     close(fd);
 }
 
-char *SendExtern(int newfd, Nodes variables){ //Funçao que responde ao vizinho interno
-    char buffer[50];
+void SendExtern(int newfd, Nodes variables){ //Funçao que responde ao vizinho interno
     char tosend[50] = "EXTERN ";
-    int n;
+    size_t n;
     strcat(tosend,variables.ext.id); strcat(tosend," ");
     strcat(tosend,variables.ext.ip); strcat(tosend," ");
     strcat(tosend,variables.ext.tcp); strcat(tosend,"\n");
-    printf("%s\n",tosend);
-    n = read(newfd,buffer,50); 
-    write(1,"received: ",10); write(1,buffer,n);
+    printf("tosend: %s\n",tosend);
     n = write(newfd, tosend, strlen(tosend) + 1);
-    char *intern = (char*)malloc(strlen(buffer)+1);
-    strcpy(intern,buffer);
-    return intern;
 }
 
 void SendNew(int fd,Server info){
     ssize_t n;
-    char aux[25] = {};
-    char buffer[50];
-    
+    char aux[25] = {};    
     strcat(aux,"NEW ");
     strcat(aux,info.id); strcat(aux," ");
     strcat(aux,info.ip); strcat(aux," ");
