@@ -28,28 +28,23 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
         strcat(compare,"\n");
         char *nodeslist = Give_List(udp_message,strlen(udp_message));
 
-        if(strcmp(nodeslist,compare) == 0){
+        /*Verifica se a lista de nos esta vazia*/
+        if(strcmp(nodeslist,compare) == 0){ 
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp); 
             Register(list,*info);
-            numero_ancoras = 1;
             primeiro = 1;
-            //printf("Lista vazia ->ancoras: %d\n",numero_ancoras);
-        }else if(primeiro == 0){
+            first_node = 1; //indica q é o primeiro no entrante no servidor
+        } else if(primeiro == 0){
             char *selected = verify_id_is_used(nodeslist);
-            //printf("ancoras %d\n",numero_ancoras);
             sscanf(selected,"%s %s %s",variables->ext.id,variables->ext.ip,variables->ext.tcp); //Guardar as informaçoes do externo
-            if(numero_ancoras == 2){
-                strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
-                numero_ancoras++;
-            }
             variables->ext.fd = join(list,*variables,*info,selected);
             primeiro = 1;
             free(selected);
         }
         free(nodeslist);
     }
-    else if (strcmp(list[0], "djoin") == 0 && strlen(list[1]) == 3 && strlen(list[2]) == 2 && primeiro == 0){
+   /* else if (strcmp(list[0], "djoin") == 0 && strlen(list[1]) == 3 && strlen(list[2]) == 2 && primeiro == 0){
         if (strcmp(list[2],list[3]) == 0){
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp);
@@ -75,7 +70,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables){
             variables->ext.fd = join(list,*variables,*info, boot);
             primeiro = 1;
         }
-    }/*
+    }*//*
     else if ((strcmp(key, "create") == 0))
     {
     }
@@ -129,10 +124,9 @@ int join(char list[6][50],Nodes variables, Server info, char *selected){
     char id[3], ip[16], port[10];
     char *token = strtok(selected,"\n");
     sscanf(token,"%s %s %s",id,ip,port);
-    printf("%s %s",ip,port);
     fd = EstablishConnection(ip,port,info); /*IP e PORT sao os parametros do qual eu me quero ligar*/
-    ext = SendNew(fd,info); // Manda o NEW e recebe informaçao do backup
-    printf("adeus: %s\n",ext);
+    SendNew(fd,info); // Manda o NEW e recebe informaçao do backup
+    //char id_aux[3],ip_aux[16], port_aux[10];
     SendMessage(str2,strlen(str2));
     return fd;
 }

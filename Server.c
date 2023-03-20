@@ -84,13 +84,13 @@ void SendMessage(char *string,int count){
     close(fd);
 }
 
-char *SendExtern(int newfd, Nodes *variables){ //Funçao que responde ao vizinho interno
+char *SendExtern(int newfd, Nodes variables){ //Funçao que responde ao vizinho interno
     char buffer[50];
     char tosend[50] = "EXTERN ";
     int n;
-    strcat(tosend,variables->ext.id); strcat(tosend," ");
-    strcat(tosend,variables->ext.ip); strcat(tosend," ");
-    strcat(tosend,variables->ext.tcp); strcat(tosend,"\n");
+    strcat(tosend,variables.ext.id); strcat(tosend," ");
+    strcat(tosend,variables.ext.ip); strcat(tosend," ");
+    strcat(tosend,variables.ext.tcp); strcat(tosend,"\n");
     printf("%s\n",tosend);
     n = read(newfd,buffer,50); 
     write(1,"received: ",10); write(1,buffer,n);
@@ -100,7 +100,7 @@ char *SendExtern(int newfd, Nodes *variables){ //Funçao que responde ao vizinho
     return intern;
 }
 
-char *SendNew(int fd,Server info){
+void SendNew(int fd,Server info){
     ssize_t n;
     char aux[25] = {};
     char buffer[50];
@@ -113,13 +113,12 @@ char *SendNew(int fd,Server info){
     n = write(fd,aux,strlen(aux));
     if(n == -1) exit(1);
 
-    n = read(fd, buffer, 50);
+    /*n = read(fd, buffer, 50);
     if(n == -1) exit(1);
 
     write(1,"echo: ",6); write(1,buffer,n);
     char *ext = (char*)malloc(strlen(buffer)+1);
-    strcpy(ext,buffer);
-    return ext;
+    strcpy(ext,buffer);*/
 }
 
 int EstablishConnection(char *ip,char *tcp, Server info){ //Funçao que estabelece a ligaçao a um no e lhe manda o NEW

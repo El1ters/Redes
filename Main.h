@@ -38,7 +38,7 @@ typedef struct nodes{
     Neighbors ext;
 }Nodes;
 
-extern int numero_ancoras;
+extern int first_node;
 
 #include "Interface.h"
 #include "Server.h"
