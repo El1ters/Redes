@@ -38,10 +38,11 @@ int main(int argc, char **argv){
                 numero_ancoras = 2;
                 int n;
                 char buffer[50];
-                n = read(newfd,buffer,50);
-                printf("buffer: %s\n",buffer);
-                char * intern;
+                //n = read(newfd,buffer,50);
+                //printf("buffer: %s\n",buffer);
+                char *intern;
                 intern = SendExtern(newfd,&variables);
+                //n = write(newfd,"oi\n",3);
                 sscanf(buffer,"NEW %s %s %s",variables.ext.id,variables.ext.ip,variables.ext.tcp);
             }else{
                 char * intern;

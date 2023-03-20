@@ -129,6 +129,7 @@ int join(char list[6][50],Nodes variables, Server info, char *selected){
     char id[3], ip[16], port[10];
     char *token = strtok(selected,"\n");
     sscanf(token,"%s %s %s",id,ip,port);
+    printf("%s %s",ip,port);
     fd = EstablishConnection(ip,port,info); /*IP e PORT sao os parametros do qual eu me quero ligar*/
     ext = SendNew(fd,info); // Manda o NEW e recebe informaçao do backup
     printf("adeus: %s\n",ext);
