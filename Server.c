@@ -91,7 +91,7 @@ void SendExtern(int newfd, Nodes variables){ //Funçao que responde ao vizinho i
     strcat(tosend,variables.ext.ip); strcat(tosend," ");
     strcat(tosend,variables.ext.tcp); strcat(tosend,"\n");
     printf("tosend: %s\n",tosend);
-    n = write(newfd, tosend, strlen(tosend) + 1);
+    n = write(newfd, tosend, strlen(tosend));
 }
 
 void SendNew(int fd,Server info){

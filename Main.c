@@ -81,9 +81,9 @@ int main(int argc, char **argv){
             ssize_t n;
             char buffer[128];
             char message[4][20] = {};
+            printf("bitch!\n");
             n = read(variables.ext.fd,buffer,128);
             sscanf(buffer,"%s %s %s %s",message[0],message[1],message[2],message[3]);
-            write(1,"received: ",11); write(1,buffer,strlen(buffer) + 1);
             if(strcmp(message[0],"NEW") == 0){
                 strcpy(variables.ext.id,message[1]); strcpy(variables.ext.ip,message[2]); strcpy(variables.ext.tcp,message[3]);
                 SendExtern(variables.ext.fd,variables);

@@ -42,6 +42,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             variables->ext.fd = join(list,*variables,*info,selected);
             *maxfd = variables->ext.fd;
+            FD_SET(variables->ext.fd,&rfds);
             primeiro = 1;
             free(selected);
         }
