@@ -2,7 +2,7 @@
 
 int first_node = 0;
 fd_set rfds;
-int number_on = 0;
+
 
 int main(int argc, char **argv){
     srand(time(NULL));
@@ -13,7 +13,11 @@ int main(int argc, char **argv){
     struct sockaddr_in addr;
     Server info;
     Nodes variables;
-
+    for(int k = 0;k != 99; k++){
+        variables.intr[k].fd = 0;
+    }
+    variables.ext.fd = 3;    
+    int number_on = 0;
     int n;
     VerifyIP(argc,argv,&info); //info->ip e info->tcp fica guardado
 
@@ -45,9 +49,11 @@ int main(int argc, char **argv){
                 maxfd = newfd;
                 FD_SET(newfd,&rfds);
                 if(first_node == 1){
-                    FD_SET(variables.ext.fd,&rfds);
                     variables.ext.fd = newfd;
                     first_node++;
+                }else{
+                    variables.intr[number_on].fd = newfd;
+                    number_on++;
                 }
                 //char buffer[50];
                 //variables.intr[number_on].fd = newfd;
@@ -81,14 +87,14 @@ int main(int argc, char **argv){
             ssize_t n;
             char buffer[128];
             char message[4][20] = {};
-            printf("bitch!\n");
             n = read(variables.ext.fd,buffer,128);
             sscanf(buffer,"%s %s %s %s",message[0],message[1],message[2],message[3]);
+            write(1,"received: ",11); write(1,buffer,strlen(buffer) + 1);
             if(strcmp(message[0],"NEW") == 0){
                 strcpy(variables.ext.id,message[1]); strcpy(variables.ext.ip,message[2]); strcpy(variables.ext.tcp,message[3]);
                 SendExtern(variables.ext.fd,variables);
             } else if(strcmp(message[0],"EXTERN") == 0){
-                write(1,"received: ",11); write(1,buffer,strlen(buffer) + 1);
+                strcpy(variables.bck.id,message[1]); strcpy(variables.bck.ip,message[2]); strcpy(variables.bck.tcp,message[3]);
             }
 
         }
@@ -96,15 +102,18 @@ int main(int argc, char **argv){
         for(int j = 0;j != number_on;j++){
             if(FD_ISSET(variables.intr[j].fd,&rfds)){
                 ssize_t n;
+                printf("interno\n");
                 char buffer[128];
                 char message[4][20] = {};
                 n = read(variables.intr[j].fd,buffer,128);
                 sscanf(buffer,"%s %s %s %s",message[0],message[1],message[2],message[3]);
-
+                write(1,"received: ",11); write(1,buffer,strlen(buffer) + 1);
                 if(strcmp(message[0],"NEW") == 0){
                     SendExtern(variables.intr[j].fd,variables);
+                    strcpy(variables.intr[number_on].id,message[1]); strcpy(variables.intr[number_on].ip,message[2]); 
+                    strcpy(variables.intr[number_on].tcp,message[3]);
                 } else if(strcmp(message[0],"EXTERN") == 0){
-                    write(1,"received: ",11); write(1,buffer,strlen(buffer) + 1);
+                    
                 }
             }
         }

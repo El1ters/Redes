@@ -38,6 +38,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
             first_node = 1; //indica q é o primeiro no entrante no servidor
         } else if(primeiro == 0){
             char *selected = verify_id_is_used(nodeslist);
+            printf("no selecionado: %s\n",selected);
             sscanf(selected,"%s %s %s",variables->ext.id,variables->ext.ip,variables->ext.tcp); //Guardar as informaçoes do externo
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             variables->ext.fd = join(list,*variables,*info,selected);
