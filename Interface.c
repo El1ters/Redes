@@ -49,33 +49,27 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         }
         free(nodeslist);
     }
-   /* else if (strcmp(list[0], "djoin") == 0 && strlen(list[1]) == 3 && strlen(list[2]) == 2 && primeiro == 0){
+    else if (strcmp(list[0], "djoin") == 0 && strlen(list[1]) == 3 && strlen(list[2]) == 2 && primeiro == 0){
         if (strcmp(list[2],list[3]) == 0){
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp);
             strcpy(variables->id,list[2]); //Guardar o id da minha maquina na struct
             Register(list,*info);
-            numero_ancoras = 1;
             primeiro = 1;
         } else {
             strcpy(info->id,list[2]); 
             strcpy(info->net,list[1]);
-            SetAncor(*info);
             char boot[30];
             strcat(boot,list[3]); strcat(boot," "); strcat(boot,list[4]); strcat(boot," "); strcat(boot,list[5]);
-
-            if(numero_ancoras == 2){
-                strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
-                strcpy(variables->ext.id,list[3]); strcpy(variables->ext.ip,list[4]); strcpy(variables->ext.tcp,list[5]);
-                numero_ancoras++;
-            }else{
-                strcpy(variables->id,list[2]);
-                strcpy(variables->ext.id,list[3]); strcpy(variables->ext.ip,list[4]); strcpy(variables->ext.tcp,list[5]); //Guardar informaçoes do externo
-            }
-            variables->ext.fd = join(list,*variables,*info, boot);
+            strcpy(variables->ext.id,list[3]); strcpy(variables->ext.ip,list[4]); strcpy(variables->ext.tcp,list[5]); //Guardar informaçoes do externo
+            strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
+            variables->ext.fd = EstablishConnection(list[4],list[5],*info);
+            SendNew(variables->ext.fd,*info);
+            *maxfd = variables->ext.fd;
+            FD_SET(variables->ext.fd,&rfds);
             primeiro = 1;
         }
-    }*//*
+    }/*
     else if ((strcmp(key, "create") == 0))
     {
     }
@@ -85,21 +79,25 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     else if (strcmp(key, "get") == 0)
     {
     }*/
-    else if ((strcmp(list[0], "show") == 0 && strcmp(list[0], "topology\n") == 0) || strcmp(list[0], "st") == 0){
+    else if ((strcmp(list[0], "show") == 0 && strcmp(list[1], "topology\n") == 0) || strcmp(list[0], "st") == 0){
         PrintContacts(*variables);
     }
     else if (strcmp(list[0], "leave") == 0 && strlen(list[1]) == 0){
-        leave(*info,&primeiro);
+        leave(*info,&primeiro,*variables);
     }
 }
 
 void PrintContacts(Nodes variables){
     printf("Vizinho Externo\n");
-    //printf("%d\n",variables.ext.fd);
-    printf("ID:%s IP:%s TCP:%s\n\n",variables.ext.id,variables.ext.ip,variables.ext.tcp);
+    printf("ID:%s IP:%s TCP:%s\n",variables.ext.id,variables.ext.ip,variables.ext.tcp);
+    printf("========================\n");
     printf("Vizinho de Backup\n");
-    printf("ID:%s IP:%s TCP:%s\n\n",variables.bck.id,variables.bck.ip,variables.bck.tcp);
+    printf("ID:%s IP:%s TCP:%s\n",variables.bck.id,variables.bck.ip,variables.bck.tcp);
+    printf("========================\n");
     printf("Vizinhos Internos\n");
+    for(int i = 0;i != 99;i++)
+        if(variables.intr[i].fd != -1)
+            printf("ID:%s IP:%s TCP:%s\n",variables.intr[i].id,variables.intr[i].ip,variables.intr[i].tcp);
 }
 
 void Register(char list[6][50],Server info){
@@ -135,14 +133,23 @@ int join(char list[6][50],Nodes variables, Server info, char *selected){
     return fd;
 }
 
-void leave(Server info,int *i){
+void leave(Server info,int *primeiro,Nodes variables){
     char str[128] = "UNREG ";
     strcat(str,info.net); 
     strcat(str," ");
     strcat(str,info.id);
-    if(*i == 1){
+    if(*primeiro == 1){
         SendMessage(str,strlen(str));
-        (*i) = 0;
+        (*primeiro) = 0;
+    }
+    if(strcmp(variables.bck.id,variables.id) == 0){
+
+    }else{
+        close(variables.ext.fd);
+        for(int j = 0;j != 99; j++){
+            if(variables.intr[j].fd != -1)
+                close(variables.intr[j].fd);
+        }
     }
 }
 

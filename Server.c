@@ -103,13 +103,6 @@ void SendNew(int fd,Server info){
 
     n = write(fd,aux,strlen(aux));
     if(n == -1) exit(1);
-
-    /*n = read(fd, buffer, 50);
-    if(n == -1) exit(1);
-
-    write(1,"echo: ",6); write(1,buffer,n);
-    char *ext = (char*)malloc(strlen(buffer)+1);
-    strcpy(ext,buffer);*/
 }
 
 int EstablishConnection(char *ip,char *tcp, Server info){ //Funçao que estabelece a ligaçao a um no e lhe manda o NEW
@@ -137,12 +130,4 @@ int EstablishConnection(char *ip,char *tcp, Server info){ //Funçao que estabele
     } 
     freeaddrinfo(res);
     return fd;
-}
-
-void SetAncor(Server info){
-    char udp_message[10] = "NODES "; 
-    strcat(udp_message,info.net);
-    char *nodeslist = Give_List(udp_message,strlen(udp_message));
-    char *selected = verify_id_is_used(nodeslist);
-    free(nodeslist); free(selected);
 }
