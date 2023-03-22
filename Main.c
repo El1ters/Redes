@@ -47,7 +47,6 @@ int main(int argc, char **argv){
 
         if(FD_ISSET(fd,&rfds)){
             if((newfd = accept(fd,(struct sockaddr*)&addr,(socklen_t*)&addrlen)) == -1) exit(1);
-            printf("conection accepted\n");
                 int n;
                 if(newfd > maxfd)
                     maxfd = newfd;
@@ -58,7 +57,6 @@ int main(int argc, char **argv){
                     FD_SET(variables.ext.fd,&rfds);
                 }else{
                     variables.intr[number_on].fd = newfd;
-                    printf("novo interno\n");
                     FD_SET(variables.intr[number_on].fd,&rfds);
                     number_on++;
                 }
@@ -67,7 +65,6 @@ int main(int argc, char **argv){
         for(int j = 0;j != number_on;j++){
             if(FD_ISSET(variables.intr[j].fd,&rfds)){
                 int n;
-                printf("interno\n");
                 char buffer[128] = {};
                 char message[4][20] = {};
                 n = read(variables.intr[j].fd,buffer,128);
@@ -92,7 +89,6 @@ int main(int argc, char **argv){
 
         if(FD_ISSET(variables.ext.fd,&rfds)){
             int n;
-            printf("externo\n");
             char buffer[128] = {};
             char message[4][20] = {};
             n = read(variables.ext.fd,buffer,128);
