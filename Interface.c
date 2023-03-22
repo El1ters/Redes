@@ -32,7 +32,6 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         if(strcmp(nodeslist,compare) == 0){ 
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp);
-            variables->ext.fd = 3; 
             Register(list,*info);
             primeiro = 1;
             first_node = 1; //indica q é o primeiro no entrante no servidor

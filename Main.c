@@ -18,29 +18,36 @@ int main(int argc, char **argv){
     for(int k = 0;k != 99; k++){
         variables.intr[k].fd = -1;
     }
-    variables.ext.fd = 3;    
+    variables.ext.fd = -1;    
     VerifyIP(argc,argv,&info); //info->ip e info->tcp fica guardado
-
-    fd = Init_Server(info);
     FD_ZERO(&rfds);
+    fd = Init_Server(info);
     maxfd = fd;
     while(1){
         FD_SET(STDIN_FILENO,&rfds);
         FD_SET(fd,&rfds);
+        for(int j = 0;j != 99;j++){
+            if(variables.intr[j].fd != -1)
+                FD_SET(variables.intr[j].fd,&rfds);
+        }
+        FD_SET(variables.ext.fd,&rfds);
         counter = select(maxfd + 1,&rfds, (fd_set*)NULL, (fd_set*)NULL, (struct timeval*)NULL);
         if(FD_ISSET(STDIN_FILENO,&rfds)){
             bzero(string,128);
             fgets(string,128,stdin);
+            printf("ola\n");
             if(strcmp(string,"exit\n") == 0){
                 close(fd);
                 exit(0);
             } 
-            if(strcmp(string,"\n") == 0) continue;
+            if(strcmp(string,"\n") == 0) 
+                continue;
             ConnectTejo(string,&info,&variables,&maxfd);
         }
 
         if(FD_ISSET(fd,&rfds)){
             if((newfd = accept(fd,(struct sockaddr*)&addr,(socklen_t*)&addrlen)) == -1) exit(1);
+            printf("conection accepted\n");
                 int n;
                 if(newfd > maxfd)
                     maxfd = newfd;
@@ -101,6 +108,7 @@ int main(int argc, char **argv){
                 if(strcmp(message[0],"NEW") == 0){
                     strcpy(variables.ext.id,message[1]); strcpy(variables.ext.ip,message[2]); strcpy(variables.ext.tcp,message[3]);
                     SendExtern(variables.ext.fd,variables);
+                    FD_SET(variables.ext.fd,&rfds);
                 } else if(strcmp(message[0],"EXTERN") == 0){
                     strcpy(variables.bck.id,message[1]); strcpy(variables.bck.ip,message[2]); strcpy(variables.bck.tcp,message[3]);
                 }
