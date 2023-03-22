@@ -3,7 +3,6 @@
 int first_node = 0;
 fd_set rfds;
 
-
 int main(int argc, char **argv){
     srand(time(NULL));
     int fd, newfd;
@@ -23,7 +22,8 @@ int main(int argc, char **argv){
     VerifyIP(argc,argv,&info); //info->ip e info->tcp fica guardado
     FD_ZERO(&rfds);
     fd = Init_Server(info);
-    maxfd = fd;
+    if(fd > maxfd)
+        maxfd = fd;
     while(1){
         FD_SET(STDIN_FILENO,&rfds);
         FD_SET(fd,&rfds);
@@ -124,7 +124,6 @@ int main(int argc, char **argv){
                 }
             }
         }
-        
     } 
     return 0;
 }
