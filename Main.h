@@ -32,6 +32,8 @@ typedef struct server{
 
 /*Estrutura que tem a informaçao do backup e dos seus vizinhos internos e externo*/
 typedef struct nodes{
+    char names[100][100];
+    int num_names;
     char id[3];
     Neighbors bck;
     Neighbors intr[99];

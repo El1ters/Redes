@@ -14,6 +14,7 @@ int main(int argc, char **argv){
     addrlen = sizeof(addr);
     Server info;
     Nodes variables;
+    variables.num_names = 0;
     int number_on = 0;
     for(int k = 0;k != 99; k++){
         variables.intr[k].fd = -1;
@@ -35,7 +36,6 @@ int main(int argc, char **argv){
         if(FD_ISSET(STDIN_FILENO,&rfds)){
             bzero(string,128);
             fgets(string,128,stdin);
-            printf("ola\n");
             if(strcmp(string,"exit\n") == 0){
                 close(fd);
                 exit(0);
@@ -101,7 +101,17 @@ int main(int argc, char **argv){
                 printf("Perdeu conexao com o externo\n");
                 close(variables.ext.fd);
                 FD_CLR(variables.ext.fd,&rfds);
-                variables.ext.fd = 0;
+                variables.ext.fd = EstablishConnection(variables.bck.ip,variables.bck.tcp,info);
+                if(variables.ext.fd > maxfd)
+                    maxfd = variables.ext.fd;
+                FD_SET(variables.ext.fd,&rfds);
+                strcpy(variables.ext.id,variables.bck.id); strcpy(variables.ext.ip,variables.bck.ip); strcpy(variables.ext.tcp,variables.bck.tcp);
+                SendNew(variables.ext.fd,info);
+                for(int k = 0;k != 99;k++){
+                    if(variables.intr[k].fd != -1)
+                        SendExtern(variables.intr[k].fd,variables);
+                }
+
             }else{ 
                 sscanf(buffer,"%s %s %s %s",message[0],message[1],message[2],message[3]);
                 write(1,"received: ",11); write(1,buffer,strlen(buffer) + 1);

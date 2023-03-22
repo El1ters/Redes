@@ -68,16 +68,38 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
             FD_SET(variables->ext.fd,&rfds);
             primeiro = 1;
         }
-    }/*
-    else if ((strcmp(key, "create") == 0))
-    {
+    } else if (strcmp(list[0], "create") == 0){
+        if(strlen(list[1])< 101){
+            if(add_names(list[1], variables->names)==1)
+                variables->num_names += 1;
+            printnames(variables->names);
+        } else {
+            printf("Name escolhido muito longo, inserir outro com até 100 caracteres");
+            fflush(stdout);
+        }
     }
-    else if ((strcmp(key, "delete") == 0))
-    {
+    else if ((strcmp(list[0], "delete") == 0)){
+        if(strlen(list[1])< 101){
+            if(clean_names(variables->names, list[1],  variables->num_names )==1)
+                variables->num_names -= 1;
+            printnames(variables->names);
+        }
     }
-    else if (strcmp(key, "get") == 0)
-    {
-    }*/
+//     else if (strcmp(list[0], "get") == 0)
+//     { if(strlen(list[1])<3 )// acho que deviamos acrescentar condicao de ver se o id que procuramos existe na nodeslist mas nao sei se o verify_if_id is used ta a dar isso)
+//    {
+    // char serching_node[3];
+    // strcp(vari, list[1]);
+//       if(strlen(list[2])<101){
+//         char name_searched[101];
+//         strcpy(name_searched,list[2]);
+//           for (i = 0;i< variables->num_names;i++)  {
+//             if (strcmp(variables->names[i][atoi(variables->id)], name_searched) == 0)  
+//             printf("Name:%s encontrado no nó %s", name_searched, variables->id );
+//       } 
+//       }else printf("Não há nomes com mais de 100 caracteres");
+//    }else printf("O nó tem de ter um valor de 1 a 99, se escolheu um valor entre 1 a 99 e falhou é porque esse nó não se encontra na rede");
+//     }
     else if ((strcmp(list[0], "show") == 0 && strcmp(list[1], "topology\n") == 0) || strcmp(list[0], "st") == 0){
         PrintContacts(*variables);
     }
@@ -112,6 +134,7 @@ void Register(char list[6][50],Server info){
     strcat(str2,info.tcp);
     SendMessage(str2,strlen(str2));
 }
+
 int join(char list[6][50],Nodes variables, Server info, char *selected){
     char str2[128]="REG ";
     int fd;
@@ -152,3 +175,48 @@ void leave(Server info,int *primeiro,Nodes variables){
     }
 }
 
+int add_names(char string[], char array[][100]) {
+    int i, j;
+    for (i = 0; i < 100; i++) {
+        if (array[i][0] == '\0') {
+            for (j = 0; j < strlen(string); j++) {
+                array[i][j] = string[j];
+
+            }
+            array[i][j] = '\0';
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void printnames(char array[][100]) {
+    int i, j;
+    for (i = 0; i < 100; i++) {
+        if (array[i][0] == '\0') {
+            break; 
+        }
+        printf("%s\n", array[i]); // print the current row
+    }
+}
+
+int clean_names(char array[][100], char str[], int contagem){
+    int j, i;
+    for (j = 0; j < contagem; j++)
+    {
+        if (strcmp(array[j], str) == 0)
+        {
+            for (i = j; j < contagem -1; j++)
+            {
+                strcpy(array[j], array[j + 1]);
+                if (array[j + 1][0] == '\0')
+                {
+                    break; // stop shifting if we reach an empty row
+                }
+            }
+            // variables.num_names--;
+            array[j][0] = '\0' ;
+            return 1 ;
+        }
+    } return 0;
+}
