@@ -56,8 +56,13 @@ int main(int argc, char **argv){
                     first_node++;
                     FD_SET(variables.ext.fd,&rfds);
                 }else{
-                    variables.intr[number_on].fd = newfd;
-                    FD_SET(variables.intr[number_on].fd,&rfds);
+                    for(int k = 0;k != 99;k++){
+                        if(variables.intr[k].fd == -1){
+                            variables.intr[k].fd = newfd;
+                            FD_SET(variables.intr[k].fd,&rfds);
+                            break;
+                        }
+                    }
                     number_on++;
                 }
         }
@@ -97,6 +102,8 @@ int main(int argc, char **argv){
                 printf("Perdeu conexao com o externo\n");
                 close(variables.ext.fd);
                 FD_CLR(variables.ext.fd,&rfds);
+                //if clause que verifica se o seu bck igual ao id (pois isto significa que a ancora pedeu conexao com o outro), 
+                //se for esse o caso tem de promover um dos internos a seu externo para definilo como ancora
                 variables.ext.fd = EstablishConnection(variables.bck.ip,variables.bck.tcp,info);
                 if(variables.ext.fd > maxfd)
                     maxfd = variables.ext.fd;
@@ -107,7 +114,6 @@ int main(int argc, char **argv){
                     if(variables.intr[k].fd != -1)
                         SendExtern(variables.intr[k].fd,variables);
                 }
-
             }else{ 
                 sscanf(buffer,"%s %s %s %s",message[0],message[1],message[2],message[3]);
                 write(1,"received: ",11); write(1,buffer,strlen(buffer) + 1);
