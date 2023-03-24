@@ -53,8 +53,8 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp);
             strcpy(variables->id,list[2]); //Guardar o id da minha maquina na struct
-            Register(list,*info);
             primeiro = 1;
+            first_node = 1;
         } else {
             strcpy(info->id,list[2]); 
             strcpy(info->net,list[1]);

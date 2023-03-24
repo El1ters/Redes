@@ -47,15 +47,18 @@ int main(int argc, char **argv){
 
         if(FD_ISSET(fd,&rfds)){
             if((newfd = accept(fd,(struct sockaddr*)&addr,(socklen_t*)&addrlen)) == -1) exit(1);
+                
                 int n;
                 if(newfd > maxfd)
                     maxfd = newfd;
                 
                 if(first_node == 1){
+                    printf("nova ancora\n");
                     variables.ext.fd = newfd;
                     first_node++;
                     FD_SET(variables.ext.fd,&rfds);
                 }else{
+                    printf("novo interno\n");
                     for(int k = 0;k != 99;k++){
                         if(variables.intr[k].fd == -1){
                             variables.intr[k].fd = newfd;
@@ -102,14 +105,23 @@ int main(int argc, char **argv){
                 printf("Perdeu conexao com o externo\n");
                 close(variables.ext.fd);
                 FD_CLR(variables.ext.fd,&rfds);
-                //if clause que verifica se o seu bck igual ao id (pois isto significa que a ancora pedeu conexao com o outro), 
-                //se for esse o caso tem de promover um dos internos a seu externo para definilo como ancora
-                variables.ext.fd = EstablishConnection(variables.bck.ip,variables.bck.tcp,info);
-                if(variables.ext.fd > maxfd)
-                    maxfd = variables.ext.fd;
-                FD_SET(variables.ext.fd,&rfds);
-                strcpy(variables.ext.id,variables.bck.id); strcpy(variables.ext.ip,variables.bck.ip); strcpy(variables.ext.tcp,variables.bck.tcp);
-                SendNew(variables.ext.fd,info);
+
+                if(strcmp(variables.id,variables.bck.id) == 0){
+                    first_node = 1;
+                    strcpy(variables.ext.id,variables.id);
+                    strcpy(variables.ext.ip,info.ip);
+                    strcpy(variables.ext.tcp,info.tcp);
+                    variables.ext.fd = -1;
+                } else {
+                    //if clause que verifica se o seu bck igual ao id (pois isto significa que a ancora pedeu conexao com o outro), 
+                    //se for esse o caso tem de promover um dos internos a seu externo para definilo como ancora
+                    variables.ext.fd = EstablishConnection(variables.bck.ip,variables.bck.tcp,info);
+                    if(variables.ext.fd > maxfd)
+                        maxfd = variables.ext.fd;
+                    FD_SET(variables.ext.fd,&rfds);
+                    strcpy(variables.ext.id,variables.bck.id); strcpy(variables.ext.ip,variables.bck.ip); strcpy(variables.ext.tcp,variables.bck.tcp);
+                    SendNew(variables.ext.fd,info);
+                }
                 for(int k = 0;k != 99;k++){
                     if(variables.intr[k].fd != -1)
                         SendExtern(variables.intr[k].fd,variables);
