@@ -111,14 +111,15 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
 void PrintContacts(Nodes variables){
     printf("Vizinho Externo\n");
     printf("ID:%s IP:%s TCP:%s\n",variables.ext.id,variables.ext.ip,variables.ext.tcp);
-    printf("========================\n");
+    printf("===========================\n");
     printf("Vizinho de Backup\n");
     printf("ID:%s IP:%s TCP:%s\n",variables.bck.id,variables.bck.ip,variables.bck.tcp);
-    printf("========================\n");
+    printf("===========================\n");
     printf("Vizinhos Internos\n");
     for(int i = 0;i != 99;i++)
-        if(variables.intr[i].fd != -1)
+        if(variables.intr[i].fd != -1){
             printf("ID:%s IP:%s TCP:%s\n",variables.intr[i].id,variables.intr[i].ip,variables.intr[i].tcp);
+        }  
 }
 
 void Register(char list[6][50],Server info){
@@ -164,18 +165,10 @@ void leave(Server info,int *primeiro,Nodes variables){
         SendMessage(str,strlen(str));
         (*primeiro) = 0;
     }
-    if(strcmp(variables.bck.id,variables.id) == 0){
-        close(variables.ext.fd);
-        for(int j = 0;j != 99; j++){
-            if(variables.intr[j].fd != -1)
-                close(variables.intr[j].fd);
-        }
-    }else{
-        close(variables.ext.fd);
-        for(int j = 0;j != 99; j++){
-            if(variables.intr[j].fd != -1)
-                close(variables.intr[j].fd);
-        }
+    close(variables.ext.fd);
+    for(int j = 0;j != 99; j++){
+        if(variables.intr[j].fd != -1)
+            close(variables.intr[j].fd);
     }
 }
 

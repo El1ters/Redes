@@ -24,7 +24,6 @@ int Init_Server(Server info){
     return fd;
 }
 
- 
 char *Give_List(char *string,int count){
     char *nodeslist = (char *)malloc(256);
     socklen_t addrlen;
