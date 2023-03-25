@@ -126,7 +126,6 @@ int main(int argc, char **argv)
             if (n == 0)
             {
                 printf("Perdeu conexao com o externo\n");
-                fflush(stdout);
                 close(variables.ext.fd);
                 FD_CLR(variables.ext.fd, &rfds);
 
@@ -153,13 +152,18 @@ int main(int argc, char **argv)
                         memset(&variables.intr[viz], 0, sizeof(variables.intr[viz]));
                         variables.intr[viz].fd = -1;
                     }
-                    else
+                    else if (strcmp(variables.id, variables.bck.id) != 0)
                     {
                         first_node = 1;
                         strcpy(variables.ext.id, variables.id);
                         strcpy(variables.ext.ip, info.ip);
                         strcpy(variables.ext.tcp, info.tcp);
                         variables.ext.fd = -1;
+                    }
+                    else{
+                        strcpy(variables.ext.id,info.id);
+                        strcpy(variables.ext.ip,info.ip);
+                        strcpy(variables.ext.tcp,info.tcp);
                     }
                 }
                 else
