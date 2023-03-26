@@ -165,7 +165,8 @@ void leave(Server info,int *primeiro,Nodes variables){
         SendMessage(str,strlen(str));
         (*primeiro) = 0;
     }
-    close(variables.ext.fd);
+    if(variables.ext.fd != -1)
+        close(variables.ext.fd);
     for(int j = 0;j != 99; j++){
         if(variables.intr[j].fd != -1)
             close(variables.intr[j].fd);

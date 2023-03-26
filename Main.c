@@ -24,8 +24,7 @@ int main(int argc, char **argv)
     VerifyIP(argc, argv, &info); // info->ip e info->tcp fica guardado
     FD_ZERO(&rfds);
     fd = Init_Server(info);
-    if (fd > maxfd)
-        maxfd = fd;
+    maxfd = fd;
     while (1)
     {
         FD_SET(STDIN_FILENO, &rfds);
@@ -56,20 +55,17 @@ int main(int argc, char **argv)
             if ((newfd = accept(fd, (struct sockaddr *)&addr, (socklen_t *)&addrlen)) == -1)
                 exit(1);
 
-            int n;
             if (newfd > maxfd)
                 maxfd = newfd;
 
             if (first_node == 1)
             {
-                printf("nova ancora\n");
                 variables.ext.fd = newfd;
                 first_node++;
                 FD_SET(variables.ext.fd, &rfds);
             }
             else
             {
-                printf("novo interno\n");
                 for (int k = 0; k != 99; k++)
                 {
                     if (variables.intr[k].fd == -1)
@@ -131,13 +127,14 @@ int main(int argc, char **argv)
 
                 if (strcmp(variables.id, variables.bck.id) == 0)
                 {
-                    int viz = 0;
+                    int viz;
+                    viz = 0;
                     // Para ir buscar o primeiro vizinho interno
                     for (viz; viz != 99; viz++)
                         if (variables.intr[viz].fd != -1)
                             break;
 
-                    if (variables.intr[viz].fd != -1)
+                    if (variables.intr[viz].fd != -1 && viz != 99)
                     {
                         strcpy(variables.ext.id, variables.intr[viz].id);
                         strcpy(variables.ext.ip, variables.intr[viz].ip);
@@ -145,25 +142,21 @@ int main(int argc, char **argv)
                         variables.ext.fd = variables.intr[viz].fd;
                         for (int j = 0; j != 99; j++)
                         {
-                            if (variables.intr[j].fd != -1){
+                            if (variables.intr[j].fd != -1)
+                            {
                                 SendExtern(variables.intr[j].fd, variables);
                             }
                         }
                         memset(&variables.intr[viz], 0, sizeof(variables.intr[viz]));
                         variables.intr[viz].fd = -1;
                     }
-                    else if (strcmp(variables.id, variables.bck.id) != 0)
+                    else
                     {
                         first_node = 1;
                         strcpy(variables.ext.id, variables.id);
                         strcpy(variables.ext.ip, info.ip);
                         strcpy(variables.ext.tcp, info.tcp);
                         variables.ext.fd = -1;
-                    }
-                    else{
-                        strcpy(variables.ext.id,info.id);
-                        strcpy(variables.ext.ip,info.ip);
-                        strcpy(variables.ext.tcp,info.tcp);
                     }
                 }
                 else
@@ -185,8 +178,7 @@ int main(int argc, char **argv)
             }
             else
             {
-                if (sscanf(buffer, "%s %s %s %s", message[0], message[1], message[2], message[3]) == 4)
-                    ;
+                sscanf(buffer, "%s %s %s %s", message[0], message[1], message[2], message[3]);
                 write(1, "received: ", 11);
                 write(1, buffer, strlen(buffer) + 1);
                 if (strcmp(message[0], "NEW") == 0)
