@@ -59,8 +59,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         } else {
             strcpy(info->id,list[2]); 
             strcpy(info->net,list[1]);
-            char boot[30];
-            strcat(boot,list[3]); strcat(boot," "); strcat(boot,list[4]); strcat(boot," "); strcat(boot,list[5]);
+            strcpy(variables->id,list[2]);
             strcpy(variables->ext.id,list[3]); strcpy(variables->ext.ip,list[4]); strcpy(variables->ext.tcp,list[5]); //Guardar informaçoes do externo
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             variables->ext.fd = EstablishConnection(list[4],list[5],*info);
@@ -87,7 +86,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         }
     }
     else if (strcmp(list[0], "get") == 0){
-
+        Get(list[1],list[2],*variables);
     }else if((strcmp(list[0], "show") == 0 && strcmp(list[1], "routing\n") == 0) || strcmp(list[0], "sr") == 0){
         printList(variables->head);
     }
@@ -208,4 +207,20 @@ int clean_names(char array[][100], char str[], int contagem){
             return 1 ;
         }
     } return 0;
+}
+
+void Get(char *dest,char *text,Nodes variables){
+    char msg[50] = "QUERY ";
+    strcat(msg,dest);
+    strcat(msg," ");
+    strcat(msg,variables.id);
+    strcat(msg," ");
+    strcat(msg,text);
+    strcat(msg,"\n");
+    if(variables.ext.fd != -1)
+        write(variables.ext.fd,msg,strlen(msg));
+    for(int i = 0;i != 99;i++){
+        if(variables.intr[i].fd != -1)
+            write(variables.intr[i].fd,msg,strlen(msg));
+    }
 }

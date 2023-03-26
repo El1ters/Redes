@@ -22,7 +22,6 @@ Expedition* insertAtEnd(Expedition* head, char* dest, char* viz){
         }
         current->next = new_node;
     }
-
     return head;
 }
 
@@ -40,5 +39,14 @@ void freeList(Expedition* head){
         Expedition* temp = current;
         current = current->next;
         free(temp);
+    }
+}
+
+void SendQuery(Nodes variables,char *msg, int sock_rec){
+    if(variables.ext.fd != -1 && variables.ext.fd != sock_rec)
+        write(variables.ext.fd,msg,strlen(msg));
+    for(int i = 0;i != 99;i++){
+        if(variables.intr[i].fd != -1 && variables.intr[i].fd != sock_rec)
+            write(variables.intr[i].fd,msg,strlen(msg));
     }
 }
