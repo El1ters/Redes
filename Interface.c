@@ -43,6 +43,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
             variables->ext.fd = join(list,*variables,*info,selected);
             *maxfd = variables->ext.fd;
             FD_SET(variables->ext.fd,&rfds);
+            variables->head = insertAtEnd(variables->head,variables->ext.id,variables->ext.id);
             primeiro = 1;
             free(selected);
         }
@@ -85,21 +86,11 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
             printnames(variables->names);
         }
     }
-//     else if (strcmp(list[0], "get") == 0)
-//     { if(strlen(list[1])<3 )// acho que deviamos acrescentar condicao de ver se o id que procuramos existe na nodeslist mas nao sei se o verify_if_id is used ta a dar isso)
-//    {
-    // char serching_node[3];
-    // strcp(vari, list[1]);
-//       if(strlen(list[2])<101){
-//         char name_searched[101];
-//         strcpy(name_searched,list[2]);
-//           for (i = 0;i< variables->num_names;i++)  {
-//             if (strcmp(variables->names[i][atoi(variables->id)], name_searched) == 0)  
-//             printf("Name:%s encontrado no nó %s", name_searched, variables->id );
-//       } 
-//       }else printf("Não há nomes com mais de 100 caracteres");
-//    }else printf("O nó tem de ter um valor de 1 a 99, se escolheu um valor entre 1 a 99 e falhou é porque esse nó não se encontra na rede");
-//     }
+    else if (strcmp(list[0], "get") == 0){
+
+    }else if((strcmp(list[0], "show") == 0 && strcmp(list[1], "routing\n") == 0) || strcmp(list[0], "sr") == 0){
+        printList(variables->head);
+    }
     else if ((strcmp(list[0], "show") == 0 && strcmp(list[1], "topology\n") == 0) || strcmp(list[0], "st") == 0){
         PrintContacts(*variables);
     }

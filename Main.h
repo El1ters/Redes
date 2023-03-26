@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <time.h>
 
+ 
+
 /*Estrutura que tem a informaçao de um vizinho*/
 typedef struct neighbors{
     int fd;
@@ -30,11 +32,18 @@ typedef struct server{
     char tcp[10];
 }Server;
 
+typedef struct expedition{
+    char dest[3];
+    char viz[3];
+    struct expedition *next;
+}Expedition;
+
 /*Estrutura que tem a informaçao do backup e dos seus vizinhos internos e externo*/
 typedef struct nodes{
     char names[100][100];
     int num_names;
     char id[3];
+    Expedition *head;
     Neighbors bck;
     Neighbors intr[99];
     Neighbors ext;
@@ -46,5 +55,6 @@ extern fd_set rfds;
 #include "Interface.h"
 #include "Server.h"
 #include "Verifications.h"
+#include "Search.h"
 
 #endif

@@ -15,6 +15,7 @@ int main(int argc, char **argv)
     Server info;
     Nodes variables;
     variables.num_names = 0;
+    variables.head = NULL;
     int number_on = 0;
     for (int k = 0; k != 99; k++)
     {
@@ -106,6 +107,7 @@ int main(int argc, char **argv)
                         strcpy(variables.intr[j].id, message[1]);
                         strcpy(variables.intr[j].ip, message[2]);
                         strcpy(variables.intr[j].tcp, message[3]);
+                        variables.head = insertAtEnd(variables.head,variables.intr[j].id,variables.intr[j].id);//Adicionar novo nó na tabela de expediçao
                         SendExtern(variables.intr[j].fd, variables);
                     }
                 }
@@ -186,6 +188,7 @@ int main(int argc, char **argv)
                     strcpy(variables.ext.id, message[1]);
                     strcpy(variables.ext.ip, message[2]);
                     strcpy(variables.ext.tcp, message[3]);
+                    variables.head = insertAtEnd(variables.head,variables.ext.id,variables.ext.id);//Adicionar o novo nó na tabela de expediçao
                     SendExtern(variables.ext.fd, variables);
                     FD_SET(variables.ext.fd, &rfds); // acho q nao e preciso
                 }
@@ -194,6 +197,7 @@ int main(int argc, char **argv)
                     strcpy(variables.bck.id, message[1]);
                     strcpy(variables.bck.ip, message[2]);
                     strcpy(variables.bck.tcp, message[3]);
+                    variables.head = insertAtEnd(variables.head,variables.bck.id,variables.ext.id);
                 }
             }
         }
