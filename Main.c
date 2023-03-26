@@ -197,7 +197,8 @@ int main(int argc, char **argv)
                     strcpy(variables.bck.id, message[1]);
                     strcpy(variables.bck.ip, message[2]);
                     strcpy(variables.bck.tcp, message[3]);
-                    variables.head = insertAtEnd(variables.head,variables.bck.id,variables.ext.id);
+                    if(strcmp(message[1],variables.id) != 0)
+                        variables.head = insertAtEnd(variables.head,variables.bck.id,variables.ext.id);
                 }
             }
         }
