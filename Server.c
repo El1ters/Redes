@@ -85,7 +85,7 @@ void SendMessage(char *string,int count){
 
 void SendExtern(int newfd, Nodes variables){ //Funçao que responde ao vizinho interno
     char tosend[50] = "EXTERN ";
-    size_t n;
+    ssize_t n;
     strcat(tosend,variables.ext.id); strcat(tosend," ");
     strcat(tosend,variables.ext.ip); strcat(tosend," ");
     strcat(tosend,variables.ext.tcp); strcat(tosend,"\n");
@@ -129,4 +129,60 @@ int EstablishConnection(char *ip,char *tcp, Server info){ //Funçao que estabele
     } 
     freeaddrinfo(res);
     return fd;
+}
+
+void HandleNode(Nodes *variables, int *maxfd, Server info)
+{
+    printf("Perdeu conexao com o externo\n");
+    close(variables->ext.fd);
+    FD_CLR(variables->ext.fd, &rfds);
+    if (strcmp(variables->id, variables->bck.id) == 0)
+    {
+        int viz = 0;
+        // Para ir buscar o primeiro vizinho interno
+        for (viz; viz != 99; viz++)
+            if (variables->intr[viz].fd != -1)
+                break;
+
+        if (variables->intr[viz].fd != -1 && viz != 99)
+        {
+            strcpy(variables->ext.id, variables->intr[viz].id);
+            strcpy(variables->ext.ip, variables->intr[viz].ip);
+            strcpy(variables->ext.tcp, variables->intr[viz].tcp);
+            variables->ext.fd = variables->intr[viz].fd;
+            for (int j = 0; j != 99; j++)
+            {
+                if (variables->intr[j].fd != -1)
+                {
+                    SendExtern(variables->intr[j].fd, *variables);
+                }
+            }
+            memset(&variables->intr[viz], 0, sizeof(variables->intr[viz]));
+            variables->intr[viz].fd = -1;
+        }
+        else
+        {
+            first_node = 1;
+            strcpy(variables->ext.id, variables->id);
+            strcpy(variables->ext.ip, info.ip);
+            strcpy(variables->ext.tcp, info.tcp);
+            variables->ext.fd = -1;
+        }
+    }
+    else
+    {
+        variables->ext.fd = EstablishConnection(variables->bck.ip, variables->bck.tcp, info);
+        if (variables->ext.fd > *maxfd)
+            *maxfd = variables->ext.fd;
+        FD_SET(variables->ext.fd, &rfds);
+        strcpy(variables->ext.id, variables->bck.id);
+        strcpy(variables->ext.ip, variables->bck.ip);
+        strcpy(variables->ext.tcp, variables->bck.tcp);
+        SendNew(variables->ext.fd, info);
+    }
+    for (int k = 0; k != 99; k++)
+    {
+        if (variables->intr[k].fd != -1)
+            SendExtern(variables->intr[k].fd, *variables);
+    }
 }

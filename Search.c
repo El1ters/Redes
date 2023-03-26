@@ -8,13 +8,13 @@ Expedition* insertAtEnd(Expedition* head, char* dest, char* viz){
     strcpy(new_node->viz, viz);
     new_node->next = NULL;
 
-    if (head == NULL) {
+    if (head == NULL){
         head = new_node;
     }
-    else {
+    else{
         Expedition* current = head;
-        while (current->next != NULL) {
-            if (strcmp(current->next->dest, dest) == 0 && strcmp(current->next->viz, viz) == 0) {
+        while (current->next != NULL){
+            if (strcmp(current->next->dest, dest) == 0 && strcmp(current->next->viz, viz) == 0){
                 free(new_node);  // Free the memory allocated for the new node
                 return head;
             }
@@ -28,7 +28,7 @@ Expedition* insertAtEnd(Expedition* head, char* dest, char* viz){
 
 void printList(Expedition* head){
     Expedition* current = head;
-    while (current != NULL) {
+    while (current != NULL){
         printf("Destination: %s, Origin: %s\n", current->dest, current->viz);
         current = current->next;
     }
@@ -36,7 +36,7 @@ void printList(Expedition* head){
 
 void freeList(Expedition* head){
     Expedition* current = head;
-    while (current != NULL) {
+    while (current != NULL){
         Expedition* temp = current;
         current = current->next;
         free(temp);
