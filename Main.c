@@ -110,7 +110,8 @@ int main(int argc, char **argv)
                         variables.head = insertAtEnd(variables.head,variables.intr[j].id,variables.intr[j].id);//Adicionar novo nó na tabela de expediçao
                         SendExtern(variables.intr[j].fd, variables);
                     }else if(strcmp(message[0], "QUERY") == 0){
-                        SendQuery(variables, buffer,variables.intr[j].fd);
+                        variables.head = insertAtEnd(variables.head,message[2],variables.intr[j].id);
+                        SendQuery(variables, buffer,variables.intr[j].fd,message[3],message[1]);
                     }
                 }
             }
@@ -145,10 +146,11 @@ int main(int argc, char **argv)
                     strcpy(variables.bck.id, message[1]);
                     strcpy(variables.bck.ip, message[2]);
                     strcpy(variables.bck.tcp, message[3]);
-                    if(strcmp(message[1],variables.id) != 0)
+                    if(strcmp(message[1],variables.id) != 0) //Para nao ficar com as informaçoes dele proprio
                         variables.head = insertAtEnd(variables.head,variables.bck.id,variables.ext.id);
                 }else if(strcmp(message[0], "QUERY") == 0){
-                    SendQuery(variables, buffer,variables.ext.fd);
+                    variables.head = insertAtEnd(variables.head,message[2],variables.ext.id);
+                    SendQuery(variables, buffer,variables.ext.fd,message[3],message[1]);
                 }
             }
         }

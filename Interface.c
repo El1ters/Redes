@@ -63,6 +63,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
             strcpy(variables->ext.id,list[3]); strcpy(variables->ext.ip,list[4]); strcpy(variables->ext.tcp,list[5]); //Guardar informaçoes do externo
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             variables->ext.fd = EstablishConnection(list[4],list[5],*info);
+            variables->head = insertAtEnd(variables->head,variables->ext.id,variables->ext.id);//Inserir na tabela de expediçao
             SendNew(variables->ext.fd,*info);
             *maxfd = variables->ext.fd;
             FD_SET(variables->ext.fd,&rfds);

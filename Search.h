@@ -7,6 +7,6 @@
 Expedition* insertAtEnd(Expedition* head, char* dest, char* viz);
 void printList(Expedition* head);
 void freeList(Expedition* head);
-void SendQuery(Nodes variables,char *msg,int sock_rec);
+void SendQuery(Nodes variables,char *msg,int sock_rec,char * txt,char *dest);
 
 #endif
