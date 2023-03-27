@@ -76,19 +76,28 @@ void BackToSender(char *string, Nodes variables,char *dest,char *txt,char *origi
     strcat(aux,dest);
     strcat(aux," ");
     strcat(aux,txt);
-
+    strcat(aux,"\n");
+    char *next = GetNext(variables,dest,origin);
+    if(strcmp(variables.ext.id,next) == 0)
+        write(variables.ext.fd,aux,strlen(aux));
+    else{
+        for(int j = 0; j != 99; j++){
+            if(strcmp(variables.intr[j].id,next) == 0)
+                write(variables.intr[j].fd,aux,strlen(aux));
+        }
+    }
 
 }
 
-char *GetNeighbor(Nodes variables,char *dest,char *origin ){
-    char viz[20]={};
-    Expedition *atual = head;
-    while(atual!= NULL){
+char *GetNext(Nodes variables,char *dest,char *origin){
+    char *viz = (char *) malloc(strlen(origin));
+    Expedition *atual = variables.head;
+    while(atual != NULL){
         if(strcmp(atual->dest, origin)==0){
             strcpy(viz, atual->viz);
             return viz;
         }
         atual = atual->next;
     }
-     return NULL;
+    return NULL;
 }

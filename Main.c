@@ -112,6 +112,10 @@ int main(int argc, char **argv)
                     }else if(strcmp(message[0], "QUERY") == 0){
                         variables.head = insertAtEnd(variables.head,message[2],variables.intr[j].id);
                         SendQuery(variables, buffer,variables.intr[j].fd,message[3],message[1],message[2]);
+                    }else if(strcmp(message[0], "CONTENT") == 0 || strcmp(message[0], "NOCONTENT") == 0){
+                        strcat(message[0]," ");
+                        if(strcmp(variables.id,message[1]) != 0)
+                            BackToSender(message[0],variables,message[2],message[3],message[1]);
                     }
                 }
             }
@@ -151,6 +155,10 @@ int main(int argc, char **argv)
                 }else if(strcmp(message[0], "QUERY") == 0){
                     variables.head = insertAtEnd(variables.head,message[2],variables.ext.id);
                     SendQuery(variables, buffer,variables.ext.fd,message[3],message[1],message[2]);
+                }else if(strcmp(message[0], "CONTENT") == 0 || strcmp(message[0], "NOCONTENT") == 0){
+                    strcat(message[0]," ");
+                    if(strcmp(variables.id,message[1]) != 0)
+                        BackToSender(message[0],variables,message[2],message[3],message[1]);
                 }
             }
         }
