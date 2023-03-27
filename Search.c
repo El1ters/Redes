@@ -86,7 +86,7 @@ void BackToSender(char *string, Nodes variables,char *dest,char *txt,char *origi
                 write(variables.intr[j].fd,aux,strlen(aux));
         }
     }
-
+    free(next);
 }
 
 char *GetNext(Nodes variables,char *dest,char *origin){
@@ -100,4 +100,13 @@ char *GetNext(Nodes variables,char *dest,char *origin){
         atual = atual->next;
     }
     return NULL;
+}
+
+void Withdraw(Nodes variables,int sock_rec,char *msg){
+    if(variables.ext.fd != -1 && variables.ext.fd != sock_rec)
+        write(variables.ext.fd,msg,strlen(msg));
+    for(int i = 0;i != 99;i++){
+        if(variables.intr[i].fd != -1 && variables.intr[i].fd != sock_rec)
+            write(variables.intr[i].fd,msg,strlen(msg));
+    }
 }

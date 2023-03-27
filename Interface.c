@@ -95,7 +95,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         PrintContacts(*variables);
     }
     else if (strcmp(list[0], "leave") == 0 && strlen(list[1]) == 0){
-        leave(*info,&primeiro,*variables);
+        leave(*info,&primeiro,*variables,&(*maxfd));
     }
 }
 
@@ -147,7 +147,7 @@ int join(char list[6][50],Nodes variables, Server info, char *selected){
     return fd;
 }
 
-void leave(Server info,int *primeiro,Nodes variables){
+void leave(Server info,int *primeiro,Nodes variables,int *maxfd){
     char str[128] = "UNREG ";
     strcat(str,info.net); 
     strcat(str," ");
@@ -156,12 +156,14 @@ void leave(Server info,int *primeiro,Nodes variables){
         SendMessage(str,strlen(str));
         (*primeiro) = 0;
     }
+    ClearExpedition(variables,variables.id);
     if(variables.ext.fd != -1)
         close(variables.ext.fd);
     for(int j = 0;j != 99; j++){
         if(variables.intr[j].fd != -1)
             close(variables.intr[j].fd);
     }
+    *maxfd = 3;
 }
 
 int add_names(char string[], char array[][100]) {
@@ -203,7 +205,6 @@ int clean_names(char array[][100], char str[], int contagem){
                     break; // stop shifting if we reach an empty row
                 }
             }
-            // variables.num_names--;
             array[j][0] = '\0' ;
             return 1 ;
         }
@@ -217,6 +218,18 @@ void Get(char *dest,char *text,Nodes variables){
     strcat(msg,variables.id);
     strcat(msg," ");
     strcat(msg,text);
+    strcat(msg,"\n");
+    if(variables.ext.fd != -1)
+        write(variables.ext.fd,msg,strlen(msg));
+    for(int i = 0;i != 99;i++){
+        if(variables.intr[i].fd != -1)
+            write(variables.intr[i].fd,msg,strlen(msg));
+    }
+}
+
+void ClearExpedition(Nodes variables,char *node_clear){
+    char msg[50] = "WITHDRAW ";
+    strcat(msg,node_clear);
     strcat(msg,"\n");
     if(variables.ext.fd != -1)
         write(variables.ext.fd,msg,strlen(msg));

@@ -23,9 +23,9 @@ int main(int argc, char **argv)
     }
     variables.ext.fd = -1;
     VerifyIP(argc, argv, &info); // info->ip e info->tcp fica guardado
-    FD_ZERO(&rfds);
     fd = Init_Server(info);
     maxfd = fd;
+    FD_ZERO(&rfds);
     while (1)
     {
         FD_SET(STDIN_FILENO, &rfds);
@@ -80,16 +80,13 @@ int main(int argc, char **argv)
             }
         }
 
-        for (int j = 0; j != number_on; j++)
-        {
-            if (FD_ISSET(variables.intr[j].fd, &rfds))
-            {
+        for (int j = 0; j != number_on; j++){
+            if (FD_ISSET(variables.intr[j].fd, &rfds)){
                 int n;
                 char buffer[128] = {};
                 char message[4][20] = {};
                 n = read(variables.intr[j].fd, buffer, 128);
-                if (n == 0)
-                {
+                if (n == 0){
                     printf("Perdeu conexao com o interno\n");
                     close(variables.intr[j].fd);
                     FD_CLR(variables.intr[j].fd, &rfds);
@@ -97,13 +94,11 @@ int main(int argc, char **argv)
                     variables.intr[j].fd = -1;
                     break;
                 }
-                else
-                {
+                else{
                     sscanf(buffer, "%s %s %s %s", message[0], message[1], message[2], message[3]);
                     write(1, "received: ", 11);
                     write(1, buffer, strlen(buffer) + 1);
-                    if (strcmp(message[0], "NEW") == 0)
-                    {
+                    if (strcmp(message[0], "NEW") == 0){
                         strcpy(variables.intr[j].id, message[1]);
                         strcpy(variables.intr[j].ip, message[2]);
                         strcpy(variables.intr[j].tcp, message[3]);
@@ -116,13 +111,14 @@ int main(int argc, char **argv)
                         strcat(message[0]," ");
                         if(strcmp(variables.id,message[1]) != 0)
                             BackToSender(message[0],variables,message[2],message[3],message[1]);
+                    }else if(strcmp(message[0], "WITHDRAW") == 0){
+                        Withdraw(variables,variables.intr[j].fd, buffer);
                     }
                 }
             }
         }
 
-        if (FD_ISSET(variables.ext.fd, &rfds))
-        {
+        if (FD_ISSET(variables.ext.fd, &rfds)){
             int n;
             char buffer[128] = {};
             char message[4][20] = {};
@@ -131,22 +127,18 @@ int main(int argc, char **argv)
             if (n == 0){
                 HandleNode(&variables,&maxfd,info);
             }
-            else
-            {
+            else{
                 sscanf(buffer, "%s %s %s %s", message[0], message[1], message[2], message[3]);
                 write(1, "received: ", 11);
                 write(1, buffer, strlen(buffer) + 1);
-                if (strcmp(message[0], "NEW") == 0)
-                {
+                if (strcmp(message[0], "NEW") == 0){
                     strcpy(variables.ext.id, message[1]);
                     strcpy(variables.ext.ip, message[2]);
                     strcpy(variables.ext.tcp, message[3]);
                     variables.head = insertAtEnd(variables.head,variables.ext.id,variables.ext.id);//Adicionar o novo nó na tabela de expediçao
                     SendExtern(variables.ext.fd, variables);
-                    FD_SET(variables.ext.fd, &rfds); // acho q nao e preciso
                 }
-                else if (strcmp(message[0], "EXTERN") == 0)
-                {
+                else if (strcmp(message[0], "EXTERN") == 0){
                     strcpy(variables.bck.id, message[1]);
                     strcpy(variables.bck.ip, message[2]);
                     strcpy(variables.bck.tcp, message[3]);
@@ -159,6 +151,8 @@ int main(int argc, char **argv)
                     strcat(message[0]," ");
                     if(strcmp(variables.id,message[1]) != 0)
                         BackToSender(message[0],variables,message[2],message[3],message[1]);
+                }else if(strcmp(message[0], "WITHDRAW") == 0){
+                    Withdraw(variables,variables.ext.fd,buffer);
                 }
             }
         }
