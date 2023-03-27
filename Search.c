@@ -46,14 +46,17 @@ void freeList(Expedition* head){
     }
 }
 
-void SendQuery(Nodes variables,char *msg, int sock_rec, char *txt, char *dest){
+void SendQuery(Nodes variables,char *msg, int sock_rec, char *txt, char *dest,char *origin){
     for(int j = 0;j <= variables.num_names; j++){
         if(strcmp(variables.id,dest) == 0){
             if(strcmp(variables.names[j],txt) == 0){
                 printf("Encontrou\n");
+                BackToSender("CONTENT ",variables,dest,txt,origin);
                 return;
             }else{
+                BackToSender("NOCONTENT ",variables, dest,txt,origin);
                 printf("Nao encontrou\n");
+                return;
             }
         }
     }
@@ -65,6 +68,27 @@ void SendQuery(Nodes variables,char *msg, int sock_rec, char *txt, char *dest){
     }
 }
 
-void BackToSender(){
-    
+void BackToSender(char *string, Nodes variables,char *dest,char *txt,char *origin){
+    char aux[30];
+    strcpy(aux,string);
+    strcat(aux,origin);
+    strcat(aux," ");
+    strcat(aux,dest);
+    strcat(aux," ");
+    strcat(aux,txt);
+
+
+}
+
+char *GetNeighbor(Nodes variables,char *dest,char *origin ){
+    char viz[20]={};
+    Expedition *atual = head;
+    while(atual!= NULL){
+        if(strcmp(atual->dest, origin)==0){
+            strcpy(viz, atual->viz);
+            return viz;
+        }
+        atual = atual->next;
+    }
+     return NULL;
 }

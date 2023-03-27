@@ -111,7 +111,7 @@ int main(int argc, char **argv)
                         SendExtern(variables.intr[j].fd, variables);
                     }else if(strcmp(message[0], "QUERY") == 0){
                         variables.head = insertAtEnd(variables.head,message[2],variables.intr[j].id);
-                        SendQuery(variables, buffer,variables.intr[j].fd,message[3],message[1]);
+                        SendQuery(variables, buffer,variables.intr[j].fd,message[3],message[1],message[2]);
                     }
                 }
             }
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
                         variables.head = insertAtEnd(variables.head,variables.bck.id,variables.ext.id);
                 }else if(strcmp(message[0], "QUERY") == 0){
                     variables.head = insertAtEnd(variables.head,message[2],variables.ext.id);
-                    SendQuery(variables, buffer,variables.ext.fd,message[3],message[1]);
+                    SendQuery(variables, buffer,variables.ext.fd,message[3],message[1],message[2]);
                 }
             }
         }
