@@ -110,3 +110,23 @@ void Withdraw(Nodes variables,int sock_rec,char *msg){
             write(variables.intr[i].fd,msg,strlen(msg));
     }
 }
+
+Expedition *remove_node(Nodes variables, int *no){
+    Expedition *aux1,*aux2;
+    aux1= variables.head;
+    aux2=variables.head->next
+    while(atual != NULL){
+        if(strcmp(aux1->dest, no)==0){
+            aux1=aux1->next;
+            free(aux1);
+
+            }
+        else(strcmp(aux1->dest, no)!=0){
+            aux1=aux2;
+            aux2=aux2->next;
+        }
+        aux1->next=aux2->next;
+        free(aux2);
+    }
+    return variables.head;
+}
