@@ -172,6 +172,7 @@ void HandleNode(Nodes *variables, int *maxfd, Server info)
     else
     {
         variables->ext.fd = EstablishConnection(variables->bck.ip, variables->bck.tcp, info);
+        variables->head = insertAtEnd(variables->head,variables->ext.id,variables->ext.id);
         if (variables->ext.fd > *maxfd)
             *maxfd = variables->ext.fd;
         FD_SET(variables->ext.fd, &rfds);
