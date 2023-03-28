@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <time.h>
 
- 
 
 /*Estrutura que tem a informaçao de um vizinho*/
 typedef struct neighbors{
@@ -45,7 +44,7 @@ typedef struct nodes{
     char id[3];
     Expedition *head;
     Neighbors bck;
-    Neighbors intr[98];
+    Neighbors intr[99];
     Neighbors ext;
 }Nodes;
 

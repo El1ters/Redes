@@ -27,16 +27,20 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         strcat(compare,info->net);
         strcat(compare,"\n");
         char *nodeslist = Give_List(udp_message,strlen(udp_message));
-
         /*Verifica se a lista de nos esta vazia*/
         if(strcmp(nodeslist,compare) == 0){ 
+            fflush(stdout);
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp);
             Register(list,*info);
             primeiro = 1;
             first_node = 1; //indica q é o primeiro no entrante no servidor
         } else if(primeiro == 0){
-            char *selected = verify_id_is_used(nodeslist);
+            if(verify_id_is_used(nodeslist,info->id) == 1){
+                printf("This ID is already being used\n");
+                return;
+            }
+            char *selected = ChooseID(nodeslist);
             printf("no selecionado: %s\n",selected);
             sscanf(selected,"%s %s %s",variables->ext.id,variables->ext.ip,variables->ext.tcp); //Guardar as informaçoes do externo
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
@@ -71,8 +75,8 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         }
     } else if (strcmp(list[0], "create") == 0){
         if(strlen(list[1])< 101){
-            if(add_names(list[1], variables->names)==1)
-                variables->num_names += 1;
+            if(add_names(list[1], variables->names) == 1)
+                variables->num_names++;
         } else {
             printf("Name escolhido muito longo, inserir outro com até 100 caracteres");
             fflush(stdout);
@@ -80,8 +84,8 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     }
     else if ((strcmp(list[0], "delete") == 0)){
         if(strlen(list[1])< 101){
-            if(clean_names(variables->names, list[1],  variables->num_names )==1)
-                variables->num_names -= 1;
+            if(clean_names(variables->names, list[1],  variables->num_names ) == 1)
+                variables->num_names--;
         }
     }
     else if (strcmp(list[0], "get") == 0){
@@ -107,7 +111,7 @@ void PrintContacts(Nodes variables){
     printf("ID:%s IP:%s TCP:%s\n",variables.bck.id,variables.bck.ip,variables.bck.tcp);
     printf("===========================\n");
     printf("Vizinhos Internos\n");
-    for(int i = 0;i != 99;i++)
+    for(int i = 0; i != 99; i++)
         if(variables.intr[i].fd != -1){
             printf("ID:%s IP:%s TCP:%s\n",variables.intr[i].id,variables.intr[i].ip,variables.intr[i].tcp);
         }  

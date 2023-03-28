@@ -14,5 +14,4 @@ int clean_names(char array[][100], char str[], int contagem);
 void Get(char *dest,char *text,Nodes variables);
 void ClearExpedition(Nodes variables,char *node_clear);
 
-
 #endif

@@ -67,6 +67,7 @@ int main(int argc, char **argv)
             }
             else
             {
+                printf("nope\n");
                 for (int k = 0; k != 99; k++)
                 {
                     if (variables.intr[k].fd == -1)
@@ -98,6 +99,7 @@ int main(int argc, char **argv)
                     sscanf(buffer, "%s %s %s %s", message[0], message[1], message[2], message[3]);
                     write(1, "received: ", 11);
                     write(1, buffer, strlen(buffer) + 1);
+                    printf("int");
                     if (strcmp(message[0], "NEW") == 0){
                         strcpy(variables.intr[j].id, message[1]);
                         strcpy(variables.intr[j].ip, message[2]);
@@ -130,6 +132,7 @@ int main(int argc, char **argv)
             }
             else{
                 sscanf(buffer, "%s %s %s %s", message[0], message[1], message[2], message[3]);
+                printf("ext\n");
                 write(1, "received: ", 11);
                 write(1, buffer, strlen(buffer) + 1);
                 if (strcmp(message[0], "NEW") == 0){

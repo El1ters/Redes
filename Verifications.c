@@ -20,7 +20,7 @@ void VerifyIP(int argc,char **argv,Server *info){
     count = sscanf(argv[1],"%[^.].%[^.].%[^.].%[^.]",aux1,aux2,aux3,aux4);
     if(count < 4){
         printf("IP inválido");
-        exit(1);
+        exit(1); 
     }
     if(strlen(aux1) > 3 || strlen(aux2) > 3 || strlen(aux3) > 3 || strlen(aux4) > 3){
         printf("IP inválido");
@@ -45,7 +45,7 @@ int ContainLetter(char *argv){
     return 0; // 0 caso nao conter
 }
 
-char *verify_id_is_used(char *nodelist){
+char *ChooseID(char *nodelist){
    char *ids[99], *token;
    int i = 0;
    token = strtok(nodelist,"\n");
@@ -60,7 +60,28 @@ char *verify_id_is_used(char *nodelist){
         i++;
    }
     int line = rand() % (i-1);
+    fflush(stdout);
     char *selected = (char *) malloc(strlen(ids[line])+1);
     strcpy(selected,ids[line]); 
     return selected; 
+}
+
+int verify_id_is_used(char *nodeslist,char *ID){
+    char *token, aux[3], list[1054];
+    strcpy(list,nodeslist);
+    token = strtok(list,"\n");
+    token = strtok(NULL,"\n");
+    sscanf(token,"%s",aux);
+    if(strcmp(aux,ID) == 0)
+        return 1;
+        
+    while(token != NULL){
+        token = strtok(NULL,"\n");
+        if(token != NULL){
+            sscanf(token,"%s",aux);
+            if(strcmp(aux,ID) == 0)
+                return 1;
+        }  
+    }
+    return 0;
 }
