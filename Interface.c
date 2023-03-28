@@ -73,7 +73,6 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         if(strlen(list[1])< 101){
             if(add_names(list[1], variables->names)==1)
                 variables->num_names += 1;
-            printnames(variables->names);
         } else {
             printf("Name escolhido muito longo, inserir outro com até 100 caracteres");
             fflush(stdout);
@@ -83,7 +82,6 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         if(strlen(list[1])< 101){
             if(clean_names(variables->names, list[1],  variables->num_names )==1)
                 variables->num_names -= 1;
-            printnames(variables->names);
         }
     }
     else if (strcmp(list[0], "get") == 0){
@@ -93,6 +91,8 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     }
     else if ((strcmp(list[0], "show") == 0 && strcmp(list[1], "topology\n") == 0) || strcmp(list[0], "st") == 0){
         PrintContacts(*variables);
+    }else if((strcmp(list[0],"show") == 0 && strcmp(list[1],"names") == 0) || strcmp(list[0],"sn") == 0){
+        printnames(variables->names);
     }
     else if (strcmp(list[0], "leave") == 0 && strlen(list[1]) == 0){
         leave(*info,&primeiro,*variables,&(*maxfd));
@@ -156,6 +156,7 @@ void leave(Server info,int *primeiro,Nodes variables,int *maxfd){
         SendMessage(str,strlen(str));
         (*primeiro) = 0;
     }
+    freeList(variables.head);
     ClearExpedition(variables,variables.id);
     if(variables.ext.fd != -1)
         close(variables.ext.fd);

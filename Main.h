@@ -45,7 +45,7 @@ typedef struct nodes{
     char id[3];
     Expedition *head;
     Neighbors bck;
-    Neighbors intr[99];
+    Neighbors intr[98];
     Neighbors ext;
 }Nodes;
 

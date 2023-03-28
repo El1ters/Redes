@@ -111,14 +111,16 @@ void Withdraw(Nodes variables,int sock_rec,char *msg){
     }
 }
 
-Expedition *remove_node(Nodes variables, char *no) {
+Expedition *remove_node(Expedition *head, char *no) {
     // Check if list is empty
-    if (variables.head == NULL) {
+    if (head == NULL) {
+        printf("list is empty\n");
         return NULL;
     }
 
     Expedition *prev = NULL;
-    Expedition *curr = variables.head;
+    Expedition *curr = head;
+    Expedition *temp = NULL;
 
     // Loop through the list
     while (curr != NULL) {
@@ -126,11 +128,11 @@ Expedition *remove_node(Nodes variables, char *no) {
         if (strcmp(curr->dest, no) == 0 || strcmp(curr->viz, no) == 0) {
             // Check if the current node is the head of the list
             if (prev == NULL) {
-                variables.head = curr->next;  // Update the head of the list
+                head = curr->next;  // Update the head of the list
             } else {
                 prev->next = curr->next;     // Update the previous node's next pointer
             }
-            Expedition *temp = curr->next;   // Store the next node before freeing the current node
+            temp = curr->next;   // Store the next node before freeing the current node
             free(curr);                      // Free the current node
             curr = temp;                     // Move on to the next node
         } else {
@@ -138,6 +140,5 @@ Expedition *remove_node(Nodes variables, char *no) {
             curr = curr->next;
         }
     }
-
-    return variables.head;
+    return head;
 }

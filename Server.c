@@ -172,13 +172,13 @@ void HandleNode(Nodes *variables, int *maxfd, Server info)
     else
     {
         variables->ext.fd = EstablishConnection(variables->bck.ip, variables->bck.tcp, info);
-        variables->head = insertAtEnd(variables->head,variables->ext.id,variables->ext.id);
         if (variables->ext.fd > *maxfd)
             *maxfd = variables->ext.fd;
         FD_SET(variables->ext.fd, &rfds);
         strcpy(variables->ext.id, variables->bck.id);
         strcpy(variables->ext.ip, variables->bck.ip);
         strcpy(variables->ext.tcp, variables->bck.tcp);
+        variables->head = insertAtEnd(variables->head,variables->ext.id,variables->ext.id);
         SendNew(variables->ext.fd, info);
     }
     for (int k = 0; k != 99; k++)

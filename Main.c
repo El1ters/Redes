@@ -112,7 +112,7 @@ int main(int argc, char **argv)
                         if(strcmp(variables.id,message[1]) != 0)
                             BackToSender(message[0],variables,message[2],message[3],message[1]);
                     }else if(strcmp(message[0], "WITHDRAW") == 0){
-                        variables.head = remove_node(variables,message[1]);
+                        variables.head = remove_node(variables.head,message[1]);
                         Withdraw(variables,variables.intr[j].fd, buffer);
                     }
                 }
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
                     if(strcmp(variables.id,message[1]) != 0)
                         BackToSender(message[0],variables,message[2],message[3],message[1]);
                 }else if(strcmp(message[0], "WITHDRAW") == 0){
-                    variables.head = remove_node(variables,message[1]);
+                    variables.head = remove_node(variables.head,message[1]);
                     Withdraw(variables,variables.ext.fd,buffer);
                 }
             }
