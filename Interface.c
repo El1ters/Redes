@@ -100,6 +100,8 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     }
     else if (strcmp(list[0], "leave") == 0 && strlen(list[1]) == 0){
         leave(*info,&primeiro,*variables,&(*maxfd));
+    }else if((strcmp(list[0],"clear") == 0 && strcmp(list[1],"routing") == 0) || strcmp(list[0],"cr") == 0){
+
     }
 }
 
@@ -149,7 +151,7 @@ void PrintContacts(Nodes variables) {
 void Register(char list[6][50],Server info){
     char str1[10]="NODES 079";
     char str2[128]="REG ";
-
+    // Concatena informações do registo à string str2
     strcat(str2,list[1]);
     strcat(str2," ");
     strcat(str2,list[2]);
@@ -157,12 +159,30 @@ void Register(char list[6][50],Server info){
     strcat(str2,info.ip);
     strcat(str2," ");
     strcat(str2,info.tcp);
+    // Envia mensagem com a string str2
     SendMessage(str2,strlen(str2));
 }
 
+
+/********************************************************************************************************************************
+int join(char list[6][50], Nodes variables, Server info, char *selected)
+
+Função que estabelece conexão com um nó selecionado e envia uma mensagem REG contendo informações
+sobre o novo nó a ser registado na rede.
+
+- Entrada:
+    - list: vetor de strings que contém as informações sobre o novo nó como o ID, endereço IP e porta TCP.
+    - variables: variável do tipo Nodes que contém informações sobre os nós vizinhos do nó que está a executar a função.
+    - info: variável do tipo Server que contém as informações do servidor do nó que está a executar a função.
+    - selected: string que contém informações sobre o nó selecionado para se juntar à rede como o ID, endereço IP e porta TCP.
+    
+- Saída:
+    - int: fd da conexão estabelecida com o nó selecionado.
+************************************************************************************************************************************/
 int join(char list[6][50],Nodes variables, Server info, char *selected){
     char str2[128]="REG ";
     int fd;
+    // Constrói a mensagem começada por REG a ser enviada para o novo nó
     strcat(str2,list[1]);
     strcat(str2," ");
     strcat(str2,list[2]);
@@ -170,33 +190,53 @@ int join(char list[6][50],Nodes variables, Server info, char *selected){
     strcat(str2,info.ip);
     strcat(str2," ");
     strcat(str2,info.tcp);
-
+    // Obtém informações do nó selecionado para se juntar
     char id[3], ip[16], port[10];
     char *token = strtok(selected,"\n");
     sscanf(token,"%s %s %s",id,ip,port);
+    // Estabelece conexão com o nó selecionado
     fd = EstablishConnection(ip,port,info); /*IP e PORT sao os parametros do qual eu me quero ligar*/
     SendNew(fd,info); // Manda o NEW e recebe informaçao do backup
-    SendMessage(str2,strlen(str2));
+    SendMessage(str2,strlen(str2)); // Envia a mensagem REG para o novo nó
     return fd;
 }
+/********************************************************************************************************************************
+void leave(Server info,int *primeiro,Nodes variables,int *maxfd)
 
-void leave(Server info,int *primeiro,Nodes variables,int *maxfd){
+Função que remove o nó da rede.
+
+- Entrada:
+    - info: variável do tipo Server que contém as informações do servidor do nó que está a ser executado a função.
+    - primeiro: ponteiro que indica se o nó é o primeiro da rede (valor 1) ou não (valor 0).
+    - variables: variável do tipo Nodes que contém informações sobre o nó e a rede.
+    - maxfd: ponteiro para o valor máximo de fd's a ser fiscalizado pela função select.
+    
+- Saída:
+    - void, logo não retorna nenhum valor
+*********************************************************************************************************************************/
+void leave(Server info,int *primeiro, Nodes variables,int *maxfd){
+    //Constrói a mensagem de saída do nó da rede
     char str[128] = "UNREG ";
     strcat(str,info.net); 
     strcat(str," ");
     strcat(str,info.id);
+    //Verifica se o nó é o primeiro a sair da rede(MIGUELLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL NAO ME LEMBRO SE E ISTO QUE ELE FAZZZ)
     if(*primeiro == 1){
-        SendMessage(str,strlen(str));
+        SendMessage(str,strlen(str)); // Envia a mensagem de saída para a rede
         (*primeiro) = 0;
     }
-    freeList(variables.head);
+    //Liberta a memória alocada para a lista de nós na rede
+    freeList(variables.head);             
+    //Remove o nó da expedição e fecha a conexão com o nó
     ClearExpedition(variables,variables.id);
     if(variables.ext.fd != -1)
         close(variables.ext.fd);
+    //Fecha todas as conexões com os restantes nós
     for(int j = 0;j != 99; j++){
         if(variables.intr[j].fd != -1)
             close(variables.intr[j].fd);
     }
+    // Dá reset o valor do maior fd utilizado pelos nós na rede
     *maxfd = 3;
 }
 
