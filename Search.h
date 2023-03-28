@@ -12,5 +12,6 @@ void BackToSender(char *string, Nodes variables,char *dest,char *txt,char *origi
 char *GetNext(Nodes variables,char *dest,char *origin);
 void Withdraw(Nodes variables,int sock_rec,char *msg);
 Expedition *remove_node(Expedition *head, char *no);
+int AccessDirectly(Nodes variables,char *dest,char *origin, char *msg);
  
 #endif

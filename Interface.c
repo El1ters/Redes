@@ -103,19 +103,48 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     }
 }
 
-void PrintContacts(Nodes variables){
+/********************************************************************************************************************************
+    void PrintContacts(Nodes variables)
+    
+    Função que imprime na tela as informações dos vizinhos de um nó.
+    
+    - Entrada:
+        - variables: variável do tipo Nodes que contém as informações dos vizinhos do nó.
+        
+    - Saída: 
+        - void, logo não retorna nenhum valor
+ *********************************************************************************************************************************/
+void PrintContacts(Nodes variables) {
+    // Imprime as informações do vizinho externo
     printf("Vizinho Externo\n");
-    printf("ID:%s IP:%s TCP:%s\n",variables.ext.id,variables.ext.ip,variables.ext.tcp);
+    printf("ID:%s IP:%s TCP:%s\n", variables.ext.id, variables.ext.ip, variables.ext.tcp);
     printf("===========================\n");
+
+    // Imprime as informações do vizinho de backup
     printf("Vizinho de Backup\n");
-    printf("ID:%s IP:%s TCP:%s\n",variables.bck.id,variables.bck.ip,variables.bck.tcp);
+    printf("ID:%s IP:%s TCP:%s\n", variables.bck.id, variables.bck.ip, variables.bck.tcp);
     printf("===========================\n");
+
+    // Percorre o vetor de vizinhos internos e imprime as informações de cada vizinho ativo
     printf("Vizinhos Internos\n");
-    for(int i = 0; i != 99; i++)
-        if(variables.intr[i].fd != -1){
-            printf("ID:%s IP:%s TCP:%s\n",variables.intr[i].id,variables.intr[i].ip,variables.intr[i].tcp);
+    for (int i = 0; i != 99; i++) {
+        if (variables.intr[i].fd != -1) {
+            printf("ID:%s IP:%s TCP:%s\n", variables.intr[i].id, variables.intr[i].ip, variables.intr[i].tcp);
         }  
+    }
 }
+/********************************************************************************************************************************
+    void Register(char list[6][50],Server info)
+    
+    Função que regista um novo nó na rede.
+    
+    - Entrada:
+        - list: vetor de strings que contém as informações sobre o novo nó, como o ID, endereço IP e porta TCP.
+        - info: variável do tipo Server que contém as informações do servidor do nó que está a executar a função.
+        
+    - Saída:
+        - void, logo não retorna nenhum valor
+ *********************************************************************************************************************************/
 
 void Register(char list[6][50],Server info){
     char str1[10]="NODES 079";

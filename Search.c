@@ -50,16 +50,16 @@ void SendQuery(Nodes variables,char *msg, int sock_rec, char *txt, char *dest,ch
     for(int j = 0;j <= variables.num_names; j++){
         if(strcmp(variables.id,dest) == 0){
             if(strcmp(variables.names[j],txt) == 0){
-                printf("Encontrou\n");
                 BackToSender("CONTENT ",variables,dest,txt,origin);
                 return;
             }else{
                 BackToSender("NOCONTENT ",variables, dest,txt,origin);
-                printf("Nao encontrou\n");
                 return;
             }
         }
     }
+    if(AccessDirectly(variables,dest,origin,msg) == 1)
+        return;
     if(variables.ext.fd != -1 && variables.ext.fd != sock_rec)
         write(variables.ext.fd,msg,strlen(msg));
     for(int i = 0;i != 99;i++){
@@ -141,4 +141,27 @@ Expedition *remove_node(Expedition *head, char *no) {
         }
     }
     return head;
+}
+
+int AccessDirectly(Nodes variables,char *dest,char *origin, char *msg){
+    Expedition *to_compare = variables.head;
+    while(to_compare != NULL){
+        //ver se o nó a que se quer chegar está na parte dos destinos
+        if(strcmp(to_compare->dest, dest) == 0){
+            //Ver se a ligação existe e ver se tenho de mandar query ao externo
+            if(variables.ext.fd != -1 && strcmp(variables.ext.id,to_compare->viz) == 0){
+                write(variables.ext.fd,msg,strlen(msg));
+                return 1;
+            }
+            //fazer um for pelos meus internos e ver se a ligaçao existe e ver se tenho q mandar query ao interno
+            for(int j = 0;j != 99;j++){
+                if(variables.intr[j].fd != -1 && strcmp(variables.intr[j].id,to_compare->viz) == 0){
+                    write(variables.intr[j].fd,msg,strlen(msg));
+                    return 1;
+                }
+            }    
+        }
+        to_compare = to_compare->next;
+    }
+    return 0;
 }
