@@ -64,43 +64,52 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
                 printf("This ID is already being used\n");
                 return;
             }
+            // Escolhe um nó aleatório da lista de nós que respondeu à mensagem UDP
             char *selected = ChooseID(nodeslist);
             printf("no selecionado: %s\n",selected);
+            // Extrai as informações do nó externo 
             sscanf(selected,"%s %s %s",variables->ext.id,variables->ext.ip,variables->ext.tcp); //Guardar as informaçoes do externo
+            // Guarda as informações do nó atual como backup
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
+            // Executa o join
             variables->ext.fd = join(list,*variables,*info,selected);
             *maxfd = variables->ext.fd;
             FD_SET(variables->ext.fd,&rfds);
+            // Insere o ID do nó externo escolhido na lista de ID's conhecidos
             variables->head = insertAtEnd(variables->head,variables->ext.id,variables->ext.id);
             primeiro = 1;
+
             free(selected);
         }
+        // Liberta a memória alocada para a lista de nós
         free(nodeslist);
     }
     else if (strcmp(list[0], "djoin") == 0 && strlen(list[1]) == 3 && strlen(list[2]) == 2 && primeiro == 0){
         if (strcmp(list[2],list[3]) == 0){
-            strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
-            strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp);
+            strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp); //Guardar informacoes do backup
+            strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp); //Guardar informacoes do externo
             strcpy(variables->id,list[2]); //Guardar o id da minha maquina na struct
             primeiro = 1;
             first_node = 1;
         } else {
-            strcpy(info->id,list[2]); 
-            strcpy(info->net,list[1]);
-            strcpy(variables->id,list[2]);
+            strcpy(info->id,list[2]);  //Guardar o id do nó que entra
+            strcpy(info->net,list[1]);  //Guarda a rede
+            strcpy(variables->id,list[2]); //Guardar o id do nó que entra na struct do meu nó
             strcpy(variables->ext.id,list[3]); strcpy(variables->ext.ip,list[4]); strcpy(variables->ext.tcp,list[5]); //Guardar informaçoes do externo
-            strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
-            variables->ext.fd = EstablishConnection(list[4],list[5],*info);
+            strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp); //Guardar informacoes do backup
+            variables->ext.fd = EstablishConnection(list[4],list[5],*info); //Abrir a conexão com o nó externo
             variables->head = insertAtEnd(variables->head,variables->ext.id,variables->ext.id);//Inserir na tabela de expediçao
-            SendNew(variables->ext.fd,*info);
-            *maxfd = variables->ext.fd;
-            FD_SET(variables->ext.fd,&rfds);
+            SendNew(variables->ext.fd,*info); //Enviar mensagem para o nó externo a informar da nova ligação
+            *maxfd = variables->ext.fd; //Atualizar o valor de maxfd
+            FD_SET(variables->ext.fd,&rfds); //Adicionar o fd do nó externo ao conjunto a monitorizar
             primeiro = 1;
         }
     } else if (strcmp(list[0], "create") == 0){
+        // verificar se o segundo argumento (nome) tem menos de 101 caracteres
         if(strlen(list[1])< 101){
+            // verificar se o nome já existe na lista de nomes
             if(add_names(list[1], variables->names) == 1)
-                variables->num_names++;
+                variables->num_names++; // aumenta o número de nomes na lista
         } else {
             printf("Name escolhido muito longo, inserir outro com até 100 caracteres");
             fflush(stdout);
@@ -108,25 +117,31 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     }
     else if ((strcmp(list[0], "delete") == 0)){
         if(strlen(list[1])< 101){
-            if(clean_names(variables->names, list[1],  variables->num_names ) == 1)
-                variables->num_names--;
+            if(clean_names(variables->names, list[1],  variables->num_names ) == 1) // verificar se o nome existe na lista de nomes
+                variables->num_names--; // decrementa o número de nomes na lista
         }
     }
     else if (strcmp(list[0], "get") == 0){
+        if(strlen(list[1])< 3){ //verificar se o nó é válido
+            if(strlen(list[2])< 101){ //verificar se o name é válido
         Get(list[1],list[2],*variables);
+            }
+        }
     }else if((strcmp(list[0], "show") == 0 && strcmp(list[1], "routing\n") == 0) || strcmp(list[0], "sr") == 0){
-        printList(variables->head);
+        printList(variables->head); // imprime a tabela de expedição do nó
     }
     else if ((strcmp(list[0], "show") == 0 && strcmp(list[1], "topology\n") == 0) || strcmp(list[0], "st") == 0){
-        PrintContacts(*variables);
+        PrintContacts(*variables);//Mostra os identificadores e os contactos dos vizinhos internos, do vizinho externo e do backup
+
     }else if((strcmp(list[0],"show") == 0 && strcmp(list[1],"names") == 0) || strcmp(list[0],"sn") == 0){
-        printnames(variables->names);
+        printnames(variables->names); //Mostra os nomes dos conteúdos presentes no nó.
     }
     else if (strcmp(list[0], "leave") == 0 && strlen(list[1]) == 0){
-        leave(*info,&primeiro,*variables,&(*maxfd));
+        leave(*info,&primeiro,*variables,&(*maxfd)); //Saída do nó da rede.
     }else if((strcmp(list[0],"clear") == 0 && strcmp(list[1],"routing") == 0) || strcmp(list[0],"cr") == 0){
+        //Apaga a tabela de expedição do nó
         freeList(variables->head);
-        variables->head = NULL;
+        variables->head = NULL; 
     }
 }
 
