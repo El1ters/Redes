@@ -88,6 +88,8 @@ int main(int argc, char **argv)
                 n = read(variables.intr[j].fd, buffer, 128);
                 if (n == 0){
                     printf("Perdeu conexao com o interno\n");
+                    ClearExpedition(variables,variables.intr[j].id);
+                    variables.head = remove_node(variables.head,variables.intr[j].id);
                     close(variables.intr[j].fd);
                     FD_CLR(variables.intr[j].fd, &rfds);
                     memset(&variables.intr[j], 0, sizeof(variables.intr[j]));
@@ -126,6 +128,8 @@ int main(int argc, char **argv)
             n = read(variables.ext.fd, buffer, 128);
 
             if (n == 0){
+                ClearExpedition(variables,variables.ext.id);
+                variables.head = remove_node(variables.head,variables.ext.id);
                 HandleNode(&variables,&maxfd,info);
             }
             else{

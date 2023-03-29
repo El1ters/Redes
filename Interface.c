@@ -253,7 +253,6 @@ void leave(Server info,int *primeiro, Nodes variables,int *maxfd){
     //Liberta a memória alocada para a lista de nós na rede
     freeList(variables.head);             
     //Remove o nó da expedição e fecha a conexão com o nó
-    ClearExpedition(variables,variables.id);
     if(variables.ext.fd != -1)
         close(variables.ext.fd);
     //Fecha todas as conexões com os restantes nós
@@ -370,6 +369,8 @@ void Get(char *dest,char *text,Nodes variables){
     strcat(msg,text);
     strcat(msg,"\n");
     // Envia a mensagem para o nó externo (se existir)
+    if(AccessDirectly(variables,dest,variables.id,msg) == 1)
+        return;
     if(variables.ext.fd != -1)
         write(variables.ext.fd,msg,strlen(msg));
     // Envia a mensagem para todos os nós internos da rede

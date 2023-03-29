@@ -58,8 +58,10 @@ void SendQuery(Nodes variables,char *msg, int sock_rec, char *txt, char *dest,ch
             }
         }
     }
-    if(AccessDirectly(variables,dest,origin,msg) == 1)
+    if(AccessDirectly(variables,dest,origin,msg) == 1){
         return;
+    }
+        
     if(variables.ext.fd != -1 && variables.ext.fd != sock_rec)
         write(variables.ext.fd,msg,strlen(msg));
     for(int i = 0;i != 99;i++){
