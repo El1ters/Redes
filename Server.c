@@ -180,10 +180,10 @@ void HandleNode(Nodes *variables, int *maxfd, Server info)
         strcpy(variables->ext.tcp, variables->bck.tcp);
         variables->head = insertAtEnd(variables->head,variables->ext.id,variables->ext.id);
         SendNew(variables->ext.fd, info);
+        for (int k = 0; k != 99; k++){
+            if (variables->intr[k].fd != -1)
+                SendExtern(variables->intr[k].fd, *variables);
+        }
     }
-    for (int k = 0; k != 99; k++)
-    {
-        if (variables->intr[k].fd != -1)
-            SendExtern(variables->intr[k].fd, *variables);
-    }
+    
 }

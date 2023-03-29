@@ -34,7 +34,7 @@ typedef struct server{
 /* Estrutura que representa um caminho percorrido por uma mensagem até ao destino, 
 consistindo no destino, o vizinho mais próximo de modo a percorrer esse caminho
  e um ponteiro para a próxima expedição na cadeia.*/
- typedef struct expedition{
+typedef struct expedition{
     char dest[3];
     char viz[3];
     struct expedition *next;

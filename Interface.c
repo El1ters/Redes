@@ -1,11 +1,26 @@
 #include "Main.h"
 #include "Interface.h"
 
+/**********************************************************************************************************************************
+ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd)
+
+Esta função recebe um comando do utilizador e atua conforme o comando recebido.
+
+    - Entrada:
+        - string: o comando do utilizador;
+        - info: um ponteiro para a estrutura Server, que contém as informações do servidor;
+        - variables: um ponteiro para a estrutura Nodes, que contém as informações dos nós da rede;
+        - maxfd: um ponteiro para um inteiro que contém o número máximo de fds a serem monitorizados.
+ 
+    - Saída:
+        - void, logo não retorna nenhum valor
+ ***********************************************************************************************************************************/
 void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     int i = 0;
-    static int primeiro = 0; /*0 significa que posso usar o comando "join", 1 significa o contrario*/
+    static int primeiro = 0; /*0 significa que se pode usar o comando "join", 1 significa o contrario*/
     char list[6][50] = {}, *token;
     token = strtok(string," ");
+    /* Obter os argumentos do comando inserido */
     while(token != NULL){
         if(token != NULL)
             strcpy(list[i],token);
@@ -13,22 +28,31 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         i++;
     }
     token = strtok(list[--i],"\n");
-
+    /* 
+        * Comando "join" é utilizado para conectar um novo nó à rede.
+        * O nó envia uma mensagem UDP para descobrir outros nós na rede.
+        * Se for o primeiro servidor na rede, então ele é o primeiro nó e não precisa se conectar a outro.
+        * Se já houver outros servidores na rede, ele escolhe um deles para se conectar, aleatoriamente.
+    */
     if (strcmp(list[0], "join") == 0 && strlen(list[1]) == 3 && strlen(list[2]) == 2 && strlen(list[3]) == 0){
         char udp_message[10] = "NODES ";
         char compare[20] =  "NODESLIST ";
+        // Se for o primeiro servidor na rede, guarda o ID e a rede na struct info e o ID na struct variables
         if(primeiro == 0){
             strcpy(info->id,list[2]); //Guardar o ID do meu server na info
             strcpy(info->net,list[1]); //Guardar o net na info
             strcpy(variables->id,list[2]); //Guardar o ID na struct pedida no projeto
         }
-
+        // Cria a mensagem UDP que será enviada para descobrir outros servidores
         strcat(udp_message,info->net);
+        // Cria a string "NODESLIST " com a rede do servidor atual
         strcat(compare,info->net);
         strcat(compare,"\n");
+        // Armazena a lista de nós que respondeu à mensagem UDP
         char *nodeslist = Give_List(udp_message,strlen(udp_message));
         /*Verifica se a lista de nos esta vazia*/
         if(strcmp(nodeslist,compare) == 0){ 
+            // Se a lista estiver vazia, então este servidor é o primeiro nó
             fflush(stdout);
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp);
@@ -101,7 +125,8 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     else if (strcmp(list[0], "leave") == 0 && strlen(list[1]) == 0){
         leave(*info,&primeiro,*variables,&(*maxfd));
     }else if((strcmp(list[0],"clear") == 0 && strcmp(list[1],"routing") == 0) || strcmp(list[0],"cr") == 0){
-
+        freeList(variables->head);
+        variables->head = NULL;
     }
 }
 
@@ -220,7 +245,7 @@ void leave(Server info,int *primeiro, Nodes variables,int *maxfd){
     strcat(str,info.net); 
     strcat(str," ");
     strcat(str,info.id);
-    //Verifica se o nó é o primeiro a sair da rede(MIGUELLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL NAO ME LEMBRO SE E ISTO QUE ELE FAZZZ)
+    //verifica se o nó está na rede ou seja se ja foi escrito join
     if(*primeiro == 1){
         SendMessage(str,strlen(str)); // Envia a mensagem de saída para a rede
         (*primeiro) = 0;
@@ -239,53 +264,104 @@ void leave(Server info,int *primeiro, Nodes variables,int *maxfd){
     // Dá reset o valor do maior fd utilizado pelos nós na rede
     *maxfd = 3;
 }
+/******************************************************************************************************************************
+ int add_names(char string[], char array[][100])
 
+Função que adiciona uma nova string a um vetor de strings.
+
+- Entrada:
+    - string: Palavra a ser adicionada no vetor.
+    - array: Vetor de strings onde a nova string será adicionada.
+
+- Saída:
+    - Retorna 1 se a string foi adicionada com sucesso, ou 0 caso contrário.
+ ******************************************************************************************************************************/
 int add_names(char string[], char array[][100]) {
+    // Percorre o vetor de strings procurando a primeira posição vazia
     int i, j;
     for (i = 0; i < 100; i++) {
         if (array[i][0] == '\0') {
+            // Copia a string para a posição vazia encontrada
             for (j = 0; j < strlen(string); j++) {
                 array[i][j] = string[j];
 
             }
+            // Adiciona o caractere \0 para indicar o fim da string
             array[i][j] = '\0';
-            return 1;
+            return 1; //  Indica que a string foi adicionada com sucesso
         }
     }
-    return 0;
+    return 0; // Indica que não foi possível adicionar a string
 }
 
+/************************************************************************************************************************************
+void printnames(char array[][100])
+
+Função que imprime os nomes armazenados no vetor.
+
+- Entrada:
+    - array: matriz de strings que contém os nomes a serem impressos.
+    
+- Saída:
+    - void, logo não retorna nenhum valor
+*************************************************************************************************************************************/
 void printnames(char array[][100]) {
     int i, j;
     for (i = 0; i < 100; i++) {
-        if (array[i][0] == '\0') {
+        if (array[i][0] == '\0') { // Se a primeira posição da linha atual for '\0', significa que não há mais nomes a serem impressos.
             break; 
         }
-        printf("%s\n", array[i]); // print the current row
+        printf("%s\n", array[i]); // Imprime a linha atual
     }
 }
 
+/********************************************************************************************************************************
+int clean_names(char array[][100], char str[], int contagem)
+
+Função que remove uma string específica do vetor de strings.
+
+- Entrada:
+    - array: array de strings a ser manipulado.
+    - str: string a ser removida do array.
+    - contagem: tamanho do array.
+
+- Saída:
+    - Retorna 1 se a string foi removida com sucesso, 0 caso contrário.
+********************************************************************************************************************************/
 int clean_names(char array[][100], char str[], int contagem){
     int j, i;
     for (j = 0; j < contagem; j++)
     {
-        if (strcmp(array[j], str) == 0)
+        if (strcmp(array[j], str) == 0) // verifica se a string do array é igual à string a ser removida
         {
-            for (i = j; j < contagem -1; j++)
+            for (i = j; j < contagem -1; j++)  // desloca as strings à direita do array para preencher o espaço da string removida
             {
                 strcpy(array[j], array[j + 1]);
-                if (array[j + 1][0] == '\0')
+                if (array[j + 1][0] == '\0')   
                 {
-                    break; // stop shifting if we reach an empty row
+                    break; // para quando chegar a uma linha vazia
                 }
             }
-            array[j][0] = '\0' ;
-            return 1 ;
+            array[j][0] = '\0' ; // define a última linha como vazia
+            return 1 ; // Se a string foi removida com sucesso
         }
-    } return 0;
+    } return 0; // Se a string não foi encontrada no array
 }
+/************************************************************************************************************************************
+void Get(char *dest,char *text,Nodes variables)
 
+Função que envia uma mensagem de Query para obter informações de um determinado nó .
+
+- Entrada:
+    - dest: string que contém o id do nó a que se quer aceder para fazer a verificação.
+    - text: string que contém o nome que se pretende verificar a presença.
+    - variables: variável do tipo Nodes que contém as informações do nó que está a ser executado na função.
+    
+- Saída:
+    -  void, logo não retorna nenhum valor
+*************************************************************************************************************************************/
 void Get(char *dest,char *text,Nodes variables){
+    // constrói a mensagem a enviar começando com "QUERY "
     char msg[50] = "QUERY ";
     strcat(msg,dest);
     strcat(msg," ");
@@ -293,14 +369,27 @@ void Get(char *dest,char *text,Nodes variables){
     strcat(msg," ");
     strcat(msg,text);
     strcat(msg,"\n");
+    // Envia a mensagem para o nó externo (se existir)
     if(variables.ext.fd != -1)
         write(variables.ext.fd,msg,strlen(msg));
+    // Envia a mensagem para todos os nós internos da rede
     for(int i = 0;i != 99;i++){
         if(variables.intr[i].fd != -1)
             write(variables.intr[i].fd,msg,strlen(msg));
     }
 }
+/************************************************************************************************************************************
+void ClearExpedition(Nodes variables, char *node_clear)
 
+Função que envia uma mensagem de WITHDRAW para parar a expedição do nó.
+
+-Entrada:
+
+    -variables: variável do tipo Nodes que contém as informações do nó que está a ser executado na função.
+    -node_clear: string que contém o id do nó cuja expedição acaba.
+Saída:
+    -void, logo não retorna nenhum valor.
+*************************************************************************************************************************************/
 void ClearExpedition(Nodes variables,char *node_clear){
     char msg[50] = "WITHDRAW ";
     strcat(msg,node_clear);
