@@ -124,6 +124,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     }
     else if (strcmp(list[0], "leave") == 0 && strlen(list[1]) == 0){
         leave(*info,&primeiro,*variables,&(*maxfd));
+        variables->head = NULL;
     }else if((strcmp(list[0],"clear") == 0 && strcmp(list[1],"routing") == 0) || strcmp(list[0],"cr") == 0){
         freeList(variables->head);
         variables->head = NULL;
@@ -145,12 +146,12 @@ void PrintContacts(Nodes variables) {
     // Imprime as informações do vizinho externo
     printf("Vizinho Externo\n");
     printf("ID:%s IP:%s TCP:%s\n", variables.ext.id, variables.ext.ip, variables.ext.tcp);
-    printf("===========================\n");
+    printf("==============================\n");
 
     // Imprime as informações do vizinho de backup
     printf("Vizinho de Backup\n");
     printf("ID:%s IP:%s TCP:%s\n", variables.bck.id, variables.bck.ip, variables.bck.tcp);
-    printf("===========================\n");
+    printf("==============================\n");
 
     // Percorre o vetor de vizinhos internos e imprime as informações de cada vizinho ativo
     printf("Vizinhos Internos\n");

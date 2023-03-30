@@ -44,7 +44,7 @@ typedef struct expedition{
 como o ID, a lista de nomes, o número de nomes, a lista de caminhos de expedição 
  o vizinho de backup, os vizinhos internos e o vizinho externo.*/
 typedef struct nodes{
-    char names[100][100];
+    char names[10][100];
     int num_names;
     char id[3];
     Expedition *head;

@@ -182,7 +182,7 @@ Retorna o identificador do próximo vizinho de um determinado nó de origem na l
         - char* ponteiro para uma string com o identificador do próximo vizinho, ou NULL se não houver próximo vizinho
 ********************************************************************************************************************************/
 char *GetNext(Nodes variables,char *dest,char *origin){
-    char *viz = (char *) malloc(strlen(origin)+1); // aloca memória para a string que irá armazenar o identificador do próximo vizinho
+    char *viz = (char *) malloc(strlen(origin) + 1); // aloca memória para a string que irá armazenar o identificador do próximo vizinho
     Expedition *atual = variables.head;  // define o ponteiro atual como o primeiro linha a visitar da lista.
     while(atual != NULL){
         if(strcmp(atual->dest, origin) == 0){ //verificar se encontra em alguma linha da lista o origin pretendido se sim copia para o viz o correspondente vizinho da lista
