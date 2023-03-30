@@ -156,12 +156,12 @@ void BackToSender(char *string, Nodes variables,char *dest,char *txt,char *origi
     // Obtém o próximo nó na rota para o destino
     char *next = GetNext(variables,dest,origin);
     // Se o próximo nó for o nó externo, envia a mensagem de volta para o remetente original
-    if(strcmp(variables.ext.id,next) == 0)
+    if(variables.ext.fd && strcmp(variables.ext.id,next) == 0)
         write(variables.ext.fd,aux,strlen(aux));
     else{
         for(int j = 0; j != 99; j++){
             // Se o próximo nó for um nó interno, envia a mensagem para o próximo nó na rota
-            if(strcmp(variables.intr[j].id,next) == 0)
+            if(variables.intr[j].fd != -1 && strcmp(variables.intr[j].id,next) == 0)
                 write(variables.intr[j].fd,aux,strlen(aux));
         }
     }

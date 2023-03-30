@@ -55,6 +55,7 @@ typedef struct nodes{
 
 extern int first_node; // Variável globar que deteta se o nó atual é o primeiro da rede.
 extern fd_set rfds; // É usado em conjunto com select() para monitorar a entrada e saída de fd's.
+extern char regIP[16], regUDP[10];
 
 #include "Interface.h"
 #include "Server.h"

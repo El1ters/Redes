@@ -49,6 +49,10 @@ void VerifyIP(int argc,char **argv,Server *info){
     // Armazena o endereço IP e a porta TCP fornecidos na estrutura Server
     strcpy(info->ip,argv[1]); 
     strcpy(info->tcp,argv[2]);
+    if(argc > 3 && strlen(argv[3]) != 0)
+        strcpy(regIP,argv[3]);
+    if(argc > 4 && strlen(argv[4]) != 0)    
+        strcpy(regUDP,argv[4]);
 }
 
 /********************************************************************************************************************************
@@ -126,23 +130,31 @@ Verifica se um ID já está a ser usado na lista de nós.
         - Retorna 1 se o ID já está sendo usado ou 0 caso contrário.
 ********************************************************************************************************************************/
 int verify_id_is_used(char *nodeslist,char *ID){
-    char *token, aux[3], list[1054];
+    char *token, aux[3];
+    char *list = (char *)malloc(1800);
     // copia a lista de nós para a variável auxiliar
     strcpy(list,nodeslist);
     // obtém a segunda linha da lista de nós, após descartar a primeira
     token = strtok(list,"\n");
     token = strtok(NULL,"\n");
     sscanf(token,"%s",aux); // lê o primeiro token da segunda linha (o ID do primeiro nó)
-    if(strcmp(aux,ID) == 0) // compara o ID com o ID fornecido
+    if(strcmp(aux,ID) == 0){
+        free(list);
+        // compara o ID com o ID fornecido
         return 1; //se já está a ser usado
+    } 
         
     while(token != NULL){ // percorre todas as linhas da lista de nós
         token = strtok(NULL,"\n"); //próxima linha
         if(token != NULL){
             sscanf(token,"%s",aux);
-            if(strcmp(aux,ID) == 0)
+            if(strcmp(aux,ID) == 0){
+                free(list);
                 return 1;
+            }
+                
         }  
     }
+    free(list);
     return 0; // retorna 0 se o ID não está sendo usado
 }

@@ -1,11 +1,23 @@
 #include "Main.h"
 #include "Server.h"
 
+/********************************************************************************************************************************
+int Init_Server(Server info)
+
+Inicializa um servidor TCP numa porta específica.
+
+    - Entrada:
+        -info: Estrutura do tipo Server como as informações do servidor como o IP e a porta.
+
+    - Saída:
+        - Retorna o fd do socket do servidor
+********************************************************************************************************************************/
 int Init_Server(Server info){
     struct addrinfo hints, *res;
     ssize_t n;
     int errcode,fd;
 
+    // Criar um socket TCP
     fd = socket(AF_INET,SOCK_STREAM,0);
     if(fd == -1) exit(1);
 
@@ -16,6 +28,7 @@ int Init_Server(Server info){
     errcode = getaddrinfo(info.ip,info.tcp,&hints,&res);
 
     if((errcode) != 0) exit(1);
+    // Conectar o socket à porta e endereço especificados
     n = bind(fd,res->ai_addr,res->ai_addrlen);
     if(n == -1) exit(1);
     if(listen(fd,5) == -1) exit(1);/*Nao tenho a certeza do 2 argumento*/
@@ -24,8 +37,22 @@ int Init_Server(Server info){
     return fd;
 }
 
+/********************************************************************************************************************************
+char *Give_List(char *string,int count)
+
+Envia um pedido para o servidor "tejo.tecnico.ulisboa.pt" na porta "59000",
+com uma string, utilizando o protocolo UDP. A função espera por uma resposta 
+do servidor e a armazena no buffer.
+
+    - Entrada:
+        -string: string a ser enviada como pedido para o servidor
+        -count: tamanho da string em bytes
+
+    - Saída:
+        - Retorna um ponteiro para o buffer que contém a resposta do servidor, ou NULL em caso de erro.
+********************************************************************************************************************************/
 char *Give_List(char *string,int count){
-    char *nodeslist = (char *)malloc(256);
+    char *nodeslist = (char *)malloc(1000);
     socklen_t addrlen;
     struct addrinfo hints,*res;
     struct sockaddr_in addr;
@@ -39,13 +66,13 @@ char *Give_List(char *string,int count){
     hints.ai_socktype=SOCK_DGRAM; // UDP socket
     hints.ai_flags=AI_PASSIVE;
 
-    errcode = getaddrinfo("tejo.tecnico.ulisboa.pt","59000",&hints,&res);
+    errcode = getaddrinfo(regIP,regUDP,&hints,&res);
     if(errcode != 0)  exit(1);
 
     m = sendto(fd,string,count,0,res->ai_addr,res->ai_addrlen);
     if(m == -1)  exit(1);
     addrlen = sizeof(addr);
-    m = recvfrom(fd,nodeslist,256,0,(struct sockaddr*)&addr,&addrlen);
+    m = recvfrom(fd,nodeslist,1000,0,(struct sockaddr*)&addr,&addrlen);
     if(m == -1)  exit(1);
 
     write(1,"echo: ",6); write(1,nodeslist,m); write(1,"\n",1);
@@ -54,8 +81,20 @@ char *Give_List(char *string,int count){
     return nodeslist;
 }
 
+/********************************************************************************************************************************
 void SendMessage(char *string,int count){
-    char buffer[128];
+
+Envia uma mensagem para o tejo através de uma ligação UDP e aguarda uma resposta.
+
+    - Entrada:
+        -string: Ponteiro para o buffer de caracteres que contém a mensagem a ser enviada.
+        -count: Número de bytes da mensagem a ser enviada.
+
+    - Saída:
+        - void, logo não retorna nenhum valor
+********************************************************************************************************************************/
+void SendMessage(char *string,int count){
+    char *buffer = (char *)malloc(1000);
     socklen_t addrlen;
     struct addrinfo hints,*res;
     struct sockaddr_in addr;
@@ -65,24 +104,37 @@ void SendMessage(char *string,int count){
     fd = socket(AF_INET,SOCK_DGRAM,0); //UDP socket
     if(fd == -1)  exit(1);
     memset(&hints,0,sizeof hints);
-    hints.ai_family=AF_INET; // IPv4
-    hints.ai_socktype=SOCK_DGRAM; // UDP socket
-    hints.ai_flags=AI_PASSIVE;
+    hints.ai_family = AF_INET; // IPv4
+    hints.ai_socktype = SOCK_DGRAM; // UDP socket
+    hints.ai_flags = AI_PASSIVE;
 
-    errcode = getaddrinfo("tejo.tecnico.ulisboa.pt","59000",&hints,&res);
+    errcode = getaddrinfo(regIP,regUDP,&hints,&res);
     if(errcode != 0)  exit(1);
 
     m = sendto(fd,string,count,0,res->ai_addr,res->ai_addrlen);
     if(m == -1)  exit(1);
     addrlen = sizeof(addr);
-    m = recvfrom(fd,buffer,128,0,(struct sockaddr*)&addr,&addrlen);
+    m = recvfrom(fd,buffer,1000,0,(struct sockaddr*)&addr,&addrlen);
     if(m == -1)  exit(1);
 
     write(1,"echo: ",6); write(1,buffer,m); write(1,"\n",1);
+    free(buffer);
     freeaddrinfo(res);
     close(fd);
 }
 
+/********************************************************************************************************************************
+void SendExtern(int newfd, Nodes variables){
+
+Envia mensagem com informações do nó externo para um vizinho interno, sendo a sua resposta à entrada do mesmo
+
+    - Entrada:
+        -newfd: fd da conexão com o vizinho interno
+        -variables: estrutura de nós que contém as informações do nó externo e dos vizinhos internos
+
+    - Saída:
+        - void, logo não retorna nenhum valor
+********************************************************************************************************************************/
 void SendExtern(int newfd, Nodes variables){ //Funçao que responde ao vizinho interno
     char tosend[50] = "EXTERN ";
     ssize_t n;
@@ -92,6 +144,18 @@ void SendExtern(int newfd, Nodes variables){ //Funçao que responde ao vizinho i
     n = write(newfd, tosend, strlen(tosend));
 }
 
+/********************************************************************************************************************************
+void SendNew(int fd,Server info)
+
+Função responsável por enviar a mensagem "NEW" para um nó específico, informando as informações do servidor atual.
+
+    - Entrada:
+        -fd: inteiro que representa o fd do socket a ser utilizado para enviar a mensagem.
+        -info: estrutura do tipo Server com as informações do servidor atual (id, ip e tcp).
+
+    - Saída:
+        - void, logo não retorna nenhum valor
+********************************************************************************************************************************/
 void SendNew(int fd,Server info){
     ssize_t n;
     char aux[25] = {};    
@@ -104,6 +168,19 @@ void SendNew(int fd,Server info){
     if(n == -1) exit(1);
 }
 
+/********************************************************************************************************************************
+int EstablishConnection(char *ip,char *tcp, Server info)
+
+Função para estabelecer a conexão TCP com um nó.
+ 
+    - Entrada:
+        - ip: endereço IP do nó a ser conectado
+        - tcp: porta TCP do nó a ser conectado
+        - info : Estrutura de dados que contém as informações do servidor.
+
+    - Saída:
+        - o fd da conexão estabelecida
+********************************************************************************************************************************/
 int EstablishConnection(char *ip,char *tcp, Server info){ //Funçao que estabelece a ligaçao a um no e lhe manda o NEW
     int fd,errcode;
     ssize_t n;
@@ -131,6 +208,19 @@ int EstablishConnection(char *ip,char *tcp, Server info){ //Funçao que estabele
     return fd;
 }
 
+/********************************************************************************************************************************
+void HandleNode(Nodes *variables, int *maxfd, Server info)
+
+Função responsável por lidar com a perda de conexão com o nó externo.
+ 
+    - Entrada:
+        - variables: estrutura com informações sobre a rede de comunicação e nós
+        - maxfd: Ponteiro para o valor máximo dos fds
+        - info : Estrutura de dados que contém as informações do servidor.
+
+    - Saída:
+        - void, logo não retorna nenhum valor
+********************************************************************************************************************************/
 void HandleNode(Nodes *variables, int *maxfd, Server info)
 {
     printf("Perdeu conexao com o externo\n");

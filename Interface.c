@@ -53,7 +53,6 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         /*Verifica se a lista de nos esta vazia*/
         if(strcmp(nodeslist,compare) == 0){ 
             // Se a lista estiver vazia, então este servidor é o primeiro nó
-            fflush(stdout);
             strcpy(variables->bck.id,info->id); strcpy(variables->bck.ip,info->ip); strcpy(variables->bck.tcp,info->tcp);
             strcpy(variables->ext.id,info->id); strcpy(variables->ext.ip,info->ip); strcpy(variables->ext.tcp,info->tcp);
             Register(list,*info);
@@ -62,6 +61,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         } else if(primeiro == 0){
             if(verify_id_is_used(nodeslist,info->id) == 1){
                 printf("This ID is already being used\n");
+                free(nodeslist);
                 return;
             }
             char *selected = ChooseID(nodeslist);
@@ -125,6 +125,8 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
     else if (strcmp(list[0], "leave") == 0 && strlen(list[1]) == 0){
         leave(*info,&primeiro,*variables,&(*maxfd));
         variables->head = NULL;
+        memset(variables->names,0,sizeof(variables->names));
+        variables->num_names = 0;  
     }else if((strcmp(list[0],"clear") == 0 && strcmp(list[1],"routing") == 0) || strcmp(list[0],"cr") == 0){
         freeList(variables->head);
         variables->head = NULL;
@@ -252,7 +254,7 @@ void leave(Server info,int *primeiro, Nodes variables,int *maxfd){
         (*primeiro) = 0;
     }
     //Liberta a memória alocada para a lista de nós na rede
-    freeList(variables.head);             
+    freeList(variables.head);           
     //Remove o nó da expedição e fecha a conexão com o nó
     if(variables.ext.fd != -1)
         close(variables.ext.fd);
