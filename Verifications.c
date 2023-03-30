@@ -107,8 +107,6 @@ char *ChooseID(char *nodelist){
    }
    // Escolhe um id aleatório no vetor de IDs.
     int line = rand() % (i-1);
-    // Limpa o buffer de saída para garantir que o texto será impresso imediatamente.
-    fflush(stdout);
     // Aloca dinamicamente memória para armazenar o ID selecionado.
     char *selected = (char *) malloc(strlen(ids[line])+1);
     // Copia o ID selecionado para a memória.
