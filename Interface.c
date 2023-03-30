@@ -371,6 +371,9 @@ void Get(char *dest,char *text,Nodes variables){
     strcat(msg," ");
     strcat(msg,text);
     strcat(msg,"\n");
+    //Verificar se o destino introduzido não é o próprio nó
+    if(strcmp(dest,variables.id) == 0)
+        return;
     // Envia a mensagem para o nó externo (se existir)
     if(AccessDirectly(variables,dest,variables.id,msg) == 1)
         return;
