@@ -26,6 +26,7 @@ int main(int argc, char **argv)
     Nodes variables; // variáveis do servidor
     variables.num_names = 0; //inicializa o número de nomes a zero
     variables.head = NULL;
+    memset(&variables.names,0,sizeof(variables.names));
     int number_on = 0; // inicializa o número de clientes como zero
     for (int k = 0; k != 99; k++)
     {
