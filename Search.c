@@ -104,16 +104,15 @@ void SendQuery(Nodes variables,char *msg, int sock_rec, char *txt, char *dest,ch
 ********************************************************************************************************************************/
 void SendQuery(Nodes variables,char *msg, int sock_rec, char *txt, char *dest,char *origin){
     // Verifica se o conteúdo procurado existe no nó destino
-    for(int j = 0;j <= variables.num_names; j++){
-        if(strcmp(variables.id,dest) == 0){
+    if(strcmp(variables.id,dest) == 0){
+        for(int j = 0;j <= variables.num_names; j++){
             if(strcmp(variables.names[j],txt) == 0){
                 BackToSender("CONTENT ",variables,dest,txt,origin); //Envia content caso encontre no nó de destino
                 return;
-            }else{
-                BackToSender("NOCONTENT ",variables, dest,txt,origin); //Envia nocontent caso não encontre no nó de destino
-                return;
             }
         }
+        BackToSender("NOCONTENT ",variables, dest,txt,origin); //Envia nocontent caso não encontre no nó de destino
+        return;
     }
     // Verifica se é possível aceder diretamente ao nó destino
     if(AccessDirectly(variables,dest,origin,msg) == 1){
