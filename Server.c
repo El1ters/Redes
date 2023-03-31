@@ -58,27 +58,58 @@ char *Give_List(char *string,int count){
     struct sockaddr_in addr;
     ssize_t m;
     int fd,errcode;
+    struct timeval time;
+    time.tv_sec = 2;
+    time.tv_usec = 0;
+    fd_set lfds;
 
     fd = socket(AF_INET,SOCK_DGRAM,0); //UDP socket
     if(fd == -1)  exit(1);
     memset(&hints,0,sizeof hints);
-    hints.ai_family=AF_INET; // IPv4
-    hints.ai_socktype=SOCK_DGRAM; // UDP socket
-    hints.ai_flags=AI_PASSIVE;
+    hints.ai_family = AF_INET; // IPv4
+    hints.ai_socktype = SOCK_DGRAM; // UDP socket
+    hints.ai_flags = AI_PASSIVE;
 
     errcode = getaddrinfo(regIP,regUDP,&hints,&res);
     if(errcode != 0)  exit(1);
 
-    m = sendto(fd,string,count,0,res->ai_addr,res->ai_addrlen);
-    if(m == -1)  exit(1);
-    addrlen = sizeof(addr);
-    m = recvfrom(fd,nodeslist,1000,0,(struct sockaddr*)&addr,&addrlen);
-    if(m == -1)  exit(1);
+    int i;
+    
+    for(i = 0; i < 5; i++){
+        FD_ZERO(&lfds);
+        FD_SET(fd,&lfds);
+        m = sendto(fd,string,count,0,res->ai_addr,res->ai_addrlen) == -1;
+        if(m == -1) exit(1);
 
-    write(1,"echo: ",6); write(1,nodeslist,m); write(1,"\n",1);
-    freeaddrinfo(res);
-    close(fd);
-    return nodeslist;
+        int counter = select(fd + 1,&lfds,NULL,NULL,&time);
+
+        if(counter == -1){
+            printf("Erro no select\n");
+            freeaddrinfo(res);
+            close(fd);
+            free(nodeslist);
+            exit(1);
+        }
+
+        if(FD_ISSET(fd,&lfds)){
+            addrlen = sizeof(addr);
+            m = recvfrom(fd,nodeslist,1000,0,(struct sockaddr*)&addr,&addrlen);
+            if(m == -1) exit(1);
+            FD_CLR(fd,&lfds);
+            FD_ZERO(&lfds);
+            write(1,"echo: ",6); write(1,nodeslist,m); write(1,"\n",1);
+            freeaddrinfo(res);
+            close(fd);
+            return nodeslist;
+        }
+    }
+    if(i == 5){
+        printf("Servidor indísponivel\n");
+        freeaddrinfo(res);
+        close(fd);
+        free(nodeslist);
+        exit(1);
+    }
 }
 
 /********************************************************************************************************************************
@@ -99,7 +130,11 @@ void SendMessage(char *string,int count){
     struct addrinfo hints,*res;
     struct sockaddr_in addr;
     ssize_t m, g ;
-    int fd,errcode;
+    int fd, errcode;
+    struct timeval time;
+    time.tv_sec = 2;
+    time.tv_usec = 0;
+    fd_set lfds;
 
     fd = socket(AF_INET,SOCK_DGRAM,0); //UDP socket
     if(fd == -1)  exit(1);
@@ -111,16 +146,43 @@ void SendMessage(char *string,int count){
     errcode = getaddrinfo(regIP,regUDP,&hints,&res);
     if(errcode != 0)  exit(1);
 
-    m = sendto(fd,string,count,0,res->ai_addr,res->ai_addrlen);
-    if(m == -1)  exit(1);
-    addrlen = sizeof(addr);
-    m = recvfrom(fd,buffer,1000,0,(struct sockaddr*)&addr,&addrlen);
-    if(m == -1)  exit(1);
+    int i;
+    for(i = 0; i < 5; i++){
+        FD_ZERO(&lfds);
+        FD_SET(fd,&lfds);
+        m = sendto(fd,string,count,0,res->ai_addr,res->ai_addrlen) == -1;
+        if(m == -1) exit(1);
 
-    write(1,"echo: ",6); write(1,buffer,m); write(1,"\n",1);
-    free(buffer);
-    freeaddrinfo(res);
-    close(fd);
+        int counter = select(fd + 1,&lfds,NULL,NULL,&time);
+
+        if(counter == -1){
+            printf("Erro no select\n");
+            freeaddrinfo(res);
+            close(fd);
+            free(buffer);
+            exit(1);
+        }
+
+        if(FD_ISSET(fd,&lfds)){
+            addrlen = sizeof(addr);
+            m = recvfrom(fd,buffer,1000,0,(struct sockaddr*)&addr,&addrlen);
+            if(m == -1) exit(1);
+            FD_CLR(fd,&lfds);
+            FD_ZERO(&lfds);
+            write(1,"echo: ",6); write(1,buffer,m); write(1,"\n",1);
+            freeaddrinfo(res);
+            free(buffer);
+            close(fd);
+            return;
+        }
+    }
+    if(i == 5){
+        printf("Servidor indísponivel\n");
+        freeaddrinfo(res);
+        free(buffer);
+        close(fd);
+        exit(1);
+    }
 }
 
 /********************************************************************************************************************************
