@@ -110,6 +110,7 @@ char *Give_List(char *string,int count){
         free(nodeslist);
         exit(1);
     }
+    return NULL;
 }
 
 /********************************************************************************************************************************
@@ -129,7 +130,7 @@ void SendMessage(char *string,int count){
     socklen_t addrlen;
     struct addrinfo hints,*res;
     struct sockaddr_in addr;
-    ssize_t m, g ;
+    ssize_t m;
     int fd, errcode;
     struct timeval time;
     time.tv_sec = 2;
@@ -204,6 +205,7 @@ void SendExtern(int newfd, Nodes variables){ //Funçao que responde ao vizinho i
     strcat(tosend,variables.ext.ip); strcat(tosend," ");
     strcat(tosend,variables.ext.tcp); strcat(tosend,"\n");
     n = write(newfd, tosend, strlen(tosend));
+    if(n == -1) exit(1);
 }
 
 /********************************************************************************************************************************
@@ -246,11 +248,8 @@ Função para estabelecer a conexão TCP com um nó.
 int EstablishConnection(char *ip,char *tcp, Server info){ //Funçao que estabelece a ligaçao a um no e lhe manda o NEW
     int fd,errcode;
     ssize_t n;
-    socklen_t addrlen;
     struct addrinfo hints, *res; 
-    struct sockaddr_in addr;
-    char buffer[128];
-
+ 
     fd = socket(AF_INET,SOCK_STREAM, 0);
     if(fd == -1) exit(1);
 
@@ -290,9 +289,9 @@ void HandleNode(Nodes *variables, int *maxfd, Server info)
     FD_CLR(variables->ext.fd, &rfds);
     if (strcmp(variables->id, variables->bck.id) == 0)
     {
-        int viz = 0;
+        int viz;
         // Para ir buscar o primeiro vizinho interno
-        for (viz; viz != 99; viz++)
+        for (viz = 0; viz != 99; viz++)
             if (variables->intr[viz].fd != -1)
                 break;
 
