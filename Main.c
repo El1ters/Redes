@@ -116,7 +116,7 @@ int main(int argc, char **argv)
             if (FD_ISSET(variables.intr[j].fd, &rfds)){
                 int n;
                 char buffer[128] = {}; // Buffer para armazenar os dados recebidos
-                char message[4][20] = {}; // Vetor para armazenar as diferentes partes da mensagem recebida
+                char message[4][30] = {}; // Vetor para armazenar as diferentes partes da mensagem recebida
                 n = read(variables.intr[j].fd, buffer, 128); // Lê os dados do socket e armazena no buffer
                 if (n == 0){ // Caso nenhum dado tenha sido recebido
                     printf("Perdeu conexao com o interno\n");
@@ -138,14 +138,14 @@ int main(int argc, char **argv)
                         strcpy(variables.intr[j].tcp, message[3]); //Armazena a porta do cliente
                         variables.head = insertAtEnd(variables.head,variables.intr[j].id,variables.intr[j].id);//Adicionar novo nó na tabela de expediçao
                         SendExtern(variables.intr[j].fd, variables); // Envia uma mensagem para os clientes externos informando sobre o novo cliente conectado
-                    }else if(strcmp(message[0], "QUERY") == 0){
+                    }else if(strcmp(message[0], "QUERY") == 0 && ContainLetter(message[1]) == 0 && strlen(message[1]) == 2 && strlen(message[2]) == 2 && ContainLetter(message[2]) == 0){
                         variables.head = insertAtEnd(variables.head,message[2],variables.intr[j].id); // Adiciona o cliente à tabela de expedição
                         SendQuery(variables, buffer,variables.intr[j].fd,message[3],message[1],message[2]); // Encaminha a mensagem para os clientes
-                    }else if(strcmp(message[0], "CONTENT") == 0 || strcmp(message[0], "NOCONTENT") == 0){
+                    }else if((strcmp(message[0], "CONTENT") == 0 || strcmp(message[0], "NOCONTENT") == 0) && ContainLetter(message[1]) == 0 && ContainLetter(message[2]) == 0){
                         strcat(message[0]," ");
                         if(strcmp(variables.id,message[1]) != 0)
                             BackToSender(message[0],variables,message[2],message[3],message[1]); //Enviaa mensagem de volta ao remetente original
-                    }else if(strcmp(message[0], "WITHDRAW") == 0){
+                    }else if(strcmp(message[0], "WITHDRAW") == 0 && ContainLetter(message[1]) == 0 && strlen(message[1]) == 2){
                         variables.head = remove_node(variables.head,message[1]); //Remove o nó com o ID da lista
                         Withdraw(variables,variables.intr[j].fd, buffer); //Envia a mensagem "WITHDRAW" para todos os nós
                     }
@@ -156,7 +156,7 @@ int main(int argc, char **argv)
         if (FD_ISSET(variables.ext.fd, &rfds)){
             int n;
             char buffer[128] = {};
-            char message[4][20] = {};
+            char message[4][30] = {};
             n = read(variables.ext.fd, buffer, 128);
 
             if (n == 0){ // caso não haja nada para ler do socket
@@ -169,7 +169,7 @@ int main(int argc, char **argv)
                 // Imprime a mensagem recebida
                 write(1, "received: ", 11); 
                 write(1, buffer, strlen(buffer) + 1);
-                if (strcmp(message[0], "NEW") == 0){
+                if (strcmp(message[0], "NEW") == 0 && ContainLetter(message[1]) == 0){
                     strcpy(variables.ext.id, message[1]); // armazena o ID do novo nó externo
                     strcpy(variables.ext.ip, message[2]); // armazena o IP do novo nó externo
                     strcpy(variables.ext.tcp, message[3]); // armazena a porta do novo nó externo
@@ -177,21 +177,21 @@ int main(int argc, char **argv)
                     variables.head = insertAtEnd(variables.head,variables.ext.id,variables.ext.id);//Adicionar o novo nó na tabela de expediçao
                     SendExtern(variables.ext.fd, variables); // envia a informação do novo nó para os nós
                 }
-                else if (strcmp(message[0], "EXTERN") == 0){
+                else if (strcmp(message[0], "EXTERN") == 0 && ContainLetter(message[1]) == 0){
                     strcpy(variables.bck.id, message[1]); // armazena o ID do backup
                     strcpy(variables.bck.ip, message[2]); // armazena o IP do backup
                     strcpy(variables.bck.tcp, message[3]); // armazena a porta do backup
                     if(strcmp(message[1],variables.id) != 0) //Para nao ficar com as informaçoes dele proprio
                         variables.head = insertAtEnd(variables.head,variables.bck.id,variables.ext.id);
-                }else if(strcmp(message[0], "QUERY") == 0){
+                }else if(strcmp(message[0], "QUERY") == 0 && ContainLetter(message[1]) == 0 && strlen(message[1]) == 2 && strlen(message[2]) == 2 && ContainLetter(message[2]) == 0){
                     variables.head = insertAtEnd(variables.head,message[2],variables.ext.id);
                     SendQuery(variables, buffer,variables.ext.fd,message[3],message[1],message[2]); // envia a mensagem QUERY para todos os nós conhecidos até encontrar o desejado, exceto o que a enviou 
-                }else if(strcmp(message[0], "CONTENT") == 0 || strcmp(message[0], "NOCONTENT") == 0){
+                }else if((strcmp(message[0], "CONTENT") == 0 || strcmp(message[0], "NOCONTENT") == 0) && ContainLetter(message[1]) == 0 && ContainLetter(message[2]) == 0 ){
                     strcat(message[0]," "); // Concatena um espaço após a palavra "CONTENT" ou "NOCONTENT" no vetor
                     // Verifica se a mensagem não é destinada a este cliente
                     if(strcmp(variables.id,message[1]) != 0)
                         BackToSender(message[0],variables,message[2],message[3],message[1]); // Envia a mensagem de volta ao remetente
-                }else if(strcmp(message[0], "WITHDRAW") == 0){
+                }else if(strcmp(message[0], "WITHDRAW") == 0 && ContainLetter(message[1]) == 0){
                     variables.head = remove_node(variables.head,message[1]); // Remove um nó da lista de usuários conectados
                     Withdraw(variables,variables.ext.fd,buffer); // Envia uma mensagem de confirmação de saída
                 }

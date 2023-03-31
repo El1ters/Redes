@@ -200,7 +200,7 @@ int EstablishConnection(char *ip,char *tcp, Server info){ //Funçao que estabele
     if(errcode != 0) exit(1);
 
     n = connect(fd, res->ai_addr, res->ai_addrlen);
-    if(n==-1){
+    if(n == -1){
         fprintf(stderr,"error: %s\n",strerror(errno));
         exit(1);
     } 

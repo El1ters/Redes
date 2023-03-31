@@ -97,7 +97,7 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
             FD_SET(variables->ext.fd,&rfds);
             primeiro = 1;
         }
-    } else if (strcmp(list[0], "create") == 0){
+    } else if (strcmp(list[0], "create") == 0 && strlen(list[2]) == 0){
         if(strlen(list[1])< 101){
             if(add_names(list[1], variables->names) == 1)
                 variables->num_names++;
@@ -106,18 +106,18 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
             fflush(stdout);
         }
     }
-    else if ((strcmp(list[0], "delete") == 0)){
+    else if ((strcmp(list[0], "delete") == 0) && strlen(list[1]) == 0){
         if(strlen(list[1])< 101){
             if(clean_names(variables->names, list[1],  variables->num_names ) == 1)
                 variables->num_names--;
         }
     }
-    else if (strcmp(list[0], "get") == 0){
+    else if (strcmp(list[0], "get") == 0 && strlen(list[1]) == 2 && ContainLetter(list[1]) == 0){
         Get(list[1],list[2],*variables);
-    }else if((strcmp(list[0], "show") == 0 && strcmp(list[1], "routing\n") == 0) || strcmp(list[0], "sr") == 0){
+    }else if((strcmp(list[0], "show") == 0 && strcmp(list[1], "routing") == 0) || strcmp(list[0], "sr") == 0){
         printList(variables->head);
     }
-    else if ((strcmp(list[0], "show") == 0 && strcmp(list[1], "topology\n") == 0) || strcmp(list[0], "st") == 0){
+    else if ((strcmp(list[0], "show") == 0 && strcmp(list[1], "topology") == 0) || strcmp(list[0], "st") == 0){
         PrintContacts(*variables);
     }else if((strcmp(list[0],"show") == 0 && strcmp(list[1],"names") == 0) || strcmp(list[0],"sn") == 0){
         printnames(variables->names);
@@ -127,9 +127,12 @@ void ConnectTejo(char *string, Server *info,Nodes *variables,int *maxfd){
         variables->head = NULL;
         memset(variables->names,0,sizeof(variables->names));
         variables->num_names = 0;  
-    }else if((strcmp(list[0],"clear") == 0 && strcmp(list[1],"routing") == 0) || strcmp(list[0],"cr") == 0){
+    }else if((strcmp(list[0],"clear") == 0 && strcmp(list[1],"routing") == 0) || strcmp(list[0],"cr") == 0 && strlen(list[1]) == 0){
         freeList(variables->head);
         variables->head = NULL;
+    }else if((strcmp(list[0],"clear") == 0 && strcmp(list[1],"names") == 0) || strcmp(list[0],"cn") == 0 && strlen(list[1]) == 0){
+        memset(variables->names,0,sizeof(variables->names));
+        variables->num_names = 0;
     }
 }
 
@@ -175,7 +178,6 @@ void PrintContacts(Nodes variables) {
     - Saída:
         - void, logo não retorna nenhum valor
  *********************************************************************************************************************************/
-
 void Register(char list[6][50],Server info){
     char str1[10]="NODES 079";
     char str2[128]="REG ";
@@ -223,9 +225,9 @@ int join(char list[6][50],Nodes variables, Server info, char *selected){
     char *token = strtok(selected,"\n");
     sscanf(token,"%s %s %s",id,ip,port);
     // Estabelece conexão com o nó selecionado
-    fd = EstablishConnection(ip,port,info); /*IP e PORT sao os parametros do qual eu me quero ligar*/
+    fd = EstablishConnection(ip,port,info); /*IP e PORT sao os parametros do qual eu me quero ligar*/        
     SendNew(fd,info); // Manda o NEW e recebe informaçao do backup
-    SendMessage(str2,strlen(str2)); // Envia a mensagem REG para o novo nó
+    SendMessage(str2,strlen(str2)); // Envia a mensagem REG para o servidor de nós
     return fd;
 }
 /********************************************************************************************************************************
